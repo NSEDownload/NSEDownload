@@ -1,0 +1,8 @@
+README.md
+setup.py
+NSEDownload.egg-info/PKG-INFO
+NSEDownload.egg-info/SOURCES.txt
+NSEDownload.egg-info/dependency_links.txt
+NSEDownload.egg-info/top_level.txt
+getDataFromNSE/__init__.py
+getDataFromNSE/getDataFromNSE.py
