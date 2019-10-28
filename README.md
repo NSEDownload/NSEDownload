@@ -15,7 +15,7 @@ Python Library to get publicly available data on NSE website ie. stock quotes, h
 
 # Installation #
 
-$pip install -i https://test.pypi.org/simple/ NSEDownload==0.1.1
+$pip install -i https://test.pypi.org/simple/ NSEDownload==0.1.2
 
 # Usage #
 
