@@ -88,7 +88,7 @@ class data:
 							a = a.replace(':',", \n")
 
 
-							with open("data.csv", "wb") as f:
+							with open("data.csv", "w") as f:
 								f.write(a)
 
 							df = pd.read_csv("data.csv")
@@ -116,7 +116,7 @@ class data:
 							a = a.replace(':',", \n")
 
 
-							with open("data.csv", "wb") as f:
+							with open("data.csv", "w") as f:
 								f.write(a)
 
 							df = pd.read_csv("data.csv")
@@ -164,7 +164,7 @@ class data:
 						a=page_content.find(id="csvContentDiv").get_text();
 						a = a.replace(':',", \n")
 
-						with open("data.csv", "wb") as f:
+						with open("data.csv", "w") as f:
 							f.write(a)
 
 						df = pd.read_csv("data.csv")
@@ -266,7 +266,7 @@ class data:
 							a = a.replace(':',", \n")
 
 
-							with open("data.csv", "wb") as f:
+							with open("data.csv", "w") as f:
 								f.write(a)
 
 							df = pd.read_csv("data.csv")
@@ -296,7 +296,7 @@ class data:
 							a = a.replace(':',", \n")
 
 
-							with open("data.csv", "wb") as f:
+							with open("data.csv", "w") as f:
 								f.write(a)
 
 							df = pd.read_csv("data.csv")
@@ -330,7 +330,7 @@ class data:
 						a=page_content.find(id="csvContentDiv").get_text();
 						a = a.replace(':',", \n")
 
-						with open("data.csv", "wb") as f:
+						with open("data.csv", "w") as f:
 							f.write(a)
 
 						df = pd.read_csv("data.csv")
