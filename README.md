@@ -5,7 +5,6 @@ Python Library to get publicly available data on NSE website ie. stock quotes, h
     * requests 
     * beautifulsoup
     * numpy
-    * scipy
     * pandas
     * csv
     * datetime, timedelta 
