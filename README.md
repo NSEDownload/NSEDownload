@@ -26,10 +26,9 @@ Get the price history of stocks and NSE indices directly in pandas dataframe
 ```
 from getDataFromNSE import getDataFromNSE
 
-a = getDataFromNSE.data()
 
 # Data For Stocks
-
+a = getDataFromNSE.data()
 df = a.returnsForStocks(stockSymbol="RELIANCE",full_data="Yes")
 
                Symbol Series  ...  % Dly Qt to Traded Qty   
@@ -46,8 +45,7 @@ Date                          ...
 02-Jan-1996  RELIANCE     EQ  ...                       -   
 01-Jan-1996  RELIANCE     EQ  ...                       -   
 
-
-
+a = getDataFromNSE.data()
 df = a.returnsForStocks(stockSymbol = "AMBUJACEM",start_date="09-08-2018",end_date="14-08-2019")
 
 
@@ -74,7 +72,8 @@ a.returnsToCSVStocks(df,link)
 
 # Data For Indices
 
-## For Data of an Index from a particular start date to particular end date 
+## For Data of an Index from a particular start date to particular end date
+a = getDataFromNSE.data()
 df= a.returns(indexName = "NIFTY Shariah 25",start_date="09-01-2017",end_date="14-08-2019")
 a.returnsToCSV(df,link)
 
@@ -92,6 +91,7 @@ Date
 
 
 ## For Complete Data for Index 
+a = getDataFromNSE.data()
 df = a.returns(indexName = "NIFTY 50",full_data="Yes")
 
 Date                                       ...                                    
@@ -113,7 +113,10 @@ Date                                       ...
 
 
 ## Data for Total Return index 
+a = getDataFromNSE.data()
 df = a.returns(indexName = "NIFTY 50",full_data="Yes",indexType="TRI")
+
+a = getDataFromNSE.data()
 df  = a.returns(indexName = "NIFTY AUTO",start_date="09-08-2010",end_date="14-08-2019",indexType="TRI")
 
 ## Calculating Returns for Historical Index
