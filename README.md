@@ -5,16 +5,19 @@ Python Library to get publicly available data on NSE website ie. stock quotes, h
     * requests 
     * beautifulsoup
     * numpy
+    * scipy
     * pandas
     * csv
     * datetime, timedelta 
     * time
     * os
+    *fuzzywuzzy
+    *python-levenshtein
 
 
 # Installation #
 
-$pip install -i https://test.pypi.org/simple/ NSEDownload==0.1.2
+$pip install -i https://test.pypi.org/simple/ NSEDownload==0.2.2
 
 # Usage #
 
@@ -23,7 +26,10 @@ Get the price history of stocks and NSE indices directly in pandas dataframe
 ```
 from getDataFromNSE import getDataFromNSE
 
-// Data For Stocks
+a = getDataFromNSE.data()
+
+# Data For Stocks
+
 df = a.returnsForStocks(stockSymbol="RELIANCE",full_data="Yes")
 
                Symbol Series  ...  % Dly Qt to Traded Qty   
@@ -59,13 +65,16 @@ Date                           ...
 09-Aug-2018  AMBUJACEM     EQ  ...                   26.36   
 
 
-// Calculating Returns for Historical Index
-// This calculates trailing returns from 1 day to upto 2 Years. It stores the output in an Excel File.
+## Calculating Trailing Returns for Historical Index
+###This calculates trailing returns from 1 day to upto 2 Years. It stores the output in an Excel File.
 a.calculateReturnsForStocks(df,link)
 
+###Saving data in a csv file.
+a.returnsToCSVStocks(df,link)
 
-// For Data of an Index from a particular start date to particular end date 
-a = getDataFromNSE.data()
+# Data For Indices
+
+## For Data of an Index from a particular start date to particular end date 
 df= a.returns(indexName = "NIFTY Shariah 25",start_date="09-01-2017",end_date="14-08-2019")
 a.returnsToCSV(df,link)
 
@@ -82,7 +91,7 @@ Date
 09-Jan-2017    -    -   -  3281.54             -                 - 
 
 
-// For Complete Data for Index 
+## For Complete Data for Index 
 df = a.returns(indexName = "NIFTY 50",full_data="Yes")
 
 Date                                       ...                                    
@@ -103,12 +112,12 @@ Date                                       ...
 03-Jul-1990      0.00      0.00      0.00  ...              -                 -   
 
 
-// Data for Total Return index 
+## Data for Total Return index 
 df = a.returns(indexName = "NIFTY 50",full_data="Yes",indexType="TRI")
 df  = a.returns(indexName = "NIFTY AUTO",start_date="09-08-2010",end_date="14-08-2019",indexType="TRI")
 
-// Calculating Returns for Historical Index
-// This calculates trailing returns from 1 day to upto 2 Years. It stores the output in an Excel File
+## Calculating Returns for Historical Index
+### This calculates trailing returns from 1 day to upto 2 Years. It stores the output in an Excel File
 a.calculateReturns(df,link)
 
 

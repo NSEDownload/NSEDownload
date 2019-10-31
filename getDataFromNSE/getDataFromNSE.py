@@ -7,7 +7,7 @@ import csv
 import datetime, timedelta
 import time
 import os
-
+from fuzzywuzzy import fuzz
 
 class data:
 
@@ -45,32 +45,34 @@ class data:
 			x=datetime.datetime.strptime(start_date,"%d-%m-%Y")
 			y=datetime.datetime.strptime(end_date,"%d-%m-%Y")
 
-			# if(y<x):
-			# 	print("Error!Please check the start and end date")
-			# try:
-			# 	raise MyError.MyError.verifyDate(x,y);
-			# except (TypeError):
-			# 	pass
 			if(x>y):
 				raise ValueError("Starting date is greater than end date.")
 
-
+			# Checking for proper IndexName and suggesting closest alternative.
 			flag=0;
-			for i in xrange(len(arr)):
+			for i in range(len(arr)):
 				if(arr[i]==indexName or values[i]==indexName):
 					indexName = arr[i]
-					# print(indexName)
+					print(indexName)
 					flag=1
 
+			maxi = 0
+			maxVal = values[0];
+			for compare in values:
+				str1 = indexName
+				str2 = compare
+
+				Ratio = fuzz.ratio(str1.lower(),str2.lower())
+				if(Ratio>maxi):
+					maxVal = compare
+					maxi = Ratio
+
 			if(flag==0):
-				raise ValueError("Check Index name.")
+				raise ValueError("Check Index name. Try {} as index name.".format(maxVal))
 
-			# if(flag==0):
-			# 	print("ERROR check Index name.")
-
-			# else:
 			indexName = indexName.replace(" ","%20")
 
+			#Downloading Data
 			result = pd.DataFrame()
 			while(True):
 					if((y-x).days<365):
@@ -130,26 +132,32 @@ class data:
 
 			
 		elif(full_data =="Yes" or full_data=="yes"):
+			
+				# Checking for proper IndexName and suggesting closest alternative.
+				flag=0;
+				for i in range(len(arr)):
+					if(arr[i]==indexName or values[i]==indexName):
+						indexName = arr[i]
+						print(indexName)
+						flag=1
 
+				maxi = 0
+				maxVal = values[0];
+				for compare in values:
+					str1 = indexName
+					str2 = compare
 
-			try:
-				raise IndexError.IndexError.verifyIndex(indexName,values)
-			except (TypeError):
-				pass
+					Ratio = fuzz.ratio(str1.lower(),str2.lower())
+					if(Ratio>maxi):
+						maxVal = compare
+						maxi = Ratio
 
-				# for i in xrange(len(arr)):
-				# 	if(arr[i]==indexName or values[i]==indexName):
-				# 		indexName = values[i]
-				# 		print(indexName)
-				# 		flag=1
+				if(flag==0):
+					raise ValueError("Check Index name. Try {} as index name".format(maxVal))
 
-				# if(flag==0):
-				# 	print("ERROR check Index name.")
-				# print("YES")
 				x=datetime.datetime.now()
 				y=datetime.datetime.now() - datetime.timedelta(days=364)
 
-				# print(x,y)
 				result = pd.DataFrame()
 				while(True):
 					try:
@@ -190,17 +198,25 @@ class data:
 		try:
 			if(link==None):
 				data.to_csv(self.indexName+".csv")
+				print("Data stored as csv in the name {}.csv".format(self.indexName))
 			else:
 				data.to_csv(link+"/{}.csv".format(self.indexName))
+				print("Data stored as csv in the name {}.csv".format(self.indexName))
+
 		except (AttributeError):
 			print("Check data")
+
 
 	def returnsToCSVStocks(self,data,link=None):
 		try:
 			if(link==None):
 				data.to_csv(self.stockSymbol+".csv")
+				print("Data stored as csv in the name {}.csv".format(self.stockSymbol))
+
 			else:
 				data.to_csv(link+"/{}.csv".format(self.stockSymbol))
+				print("Data stored as csv in the name {}.csv".format(self.stockSymbol))
+
 		except (AttributeError):
 			print("Check data")
 
@@ -241,12 +257,21 @@ class data:
 
 				if(x>y):
 					raise ValueError("Starting date is greater than end date.")
-			# try:
-			# 	raise IndexError.IndexError.verifyIndex(stockSymbol,values)
-			# except (TypeError):
-			# 	pass			
+
+				#Checking for proper StockSymbol and suggesting necessary changes.
+				maxi = 0
+				maxVal = values[0];
+				for compare in values:
+					str1 = stockSymbol
+					str2 = compare
+
+					Ratio = fuzz.ratio(str1.lower(),str2.lower())
+					if(Ratio>maxi):
+						maxVal = compare
+						maxi = Ratio
+
 				if stockSymbol not in values:
-					raise ValueError("Check the Stock symbol.")
+					raise ValueError("Check the Stock symbol. Try {} as stock symbol.".format(maxVal))
 
 				result = pd.DataFrame()
 				while(True):
@@ -314,9 +339,21 @@ class data:
 				x=datetime.datetime.now()
 				y=datetime.datetime.now() - datetime.timedelta(days=364)
 
+				maxi = 0
+				maxVal = values[0];
+				for compare in values:
+					str1 = stockSymbol
+					str2 = compare
+
+					Ratio = fuzz.ratio(str1.lower(),str2.lower())
+					if(Ratio>maxi):
+						maxVal = compare
+						maxi = Ratio
+
 				if stockSymbol not in values:
-					raise ValueError("Check the Stock symbol.")
+					raise ValueError("Check the Stock symbol.Try {} as stock symbol".format(maxVal))
 				result = pd.DataFrame()
+
 				while(True):
 					try:
 						todate=x.strftime("%d-%m-%Y")
@@ -342,7 +379,6 @@ class data:
 						y = x - datetime.timedelta(days=364)
 
 					except AttributeError:
-
 						break;
 		try:
 			os.remove("data.csv")
@@ -356,7 +392,7 @@ class data:
 
 
 	def calculateReturns(self,data,link=None):
-		# print(data)
+
 		df = data
 		df["Date"] = df.index
 		df["Date"] = pd.to_datetime(df["Date"]).dt.date
@@ -382,45 +418,45 @@ class data:
 
 
 		df["1 Day Date"] = (df.Date.shift(1)).dt.date
-		df["1 Day Price"] = ( df["Close Price"].shift(1) )
-		df["1 Day Returns"] = ( df["Close Price"]/df["Close Price"].shift(1) ) -1
+		df["1 Day Price"] = ( df["Close"].shift(1) )
+		df["1 Day Returns"] = ( df["Close"]/df["Close"].shift(1) ) -1
 
 		df["1 Week Date"] = (df.Date.shift(7)).dt.date
-		df["1 Week Price"] = ( df["Close Price"].shift(7) )
-		df["1 Week Returns"] = ( df["Close Price"]/df["Close Price"].shift(7) ) -1
+		df["1 Week Price"] = ( df["Close"].shift(7) )
+		df["1 Week Returns"] = ( df["Close"]/df["Close"].shift(7) ) -1
 
 		df["2 Week Date"] = (df.Date.shift(14)).dt.date
-		df["2 Week Price"] = ( df["Close Price"].shift(14) )
-		df["2 Week Returns"] = ( df["Close Price"]/df["Close Price"].shift(14) ) -1
+		df["2 Week Price"] = ( df["Close"].shift(14) )
+		df["2 Week Returns"] = ( df["Close"]/df["Close"].shift(14) ) -1
 
 		df["1 Month Date"] = (df.Date.shift(30)).dt.date
-		df["1 Month Price"] = ( df["Close Price"].shift(30) )
-		df["1 Month Returns"] = ( df["Close Price"]/df["Close Price"].shift(30) ) -1
+		df["1 Month Price"] = ( df["Close"].shift(30) )
+		df["1 Month Returns"] = ( df["Close"]/df["Close"].shift(30) ) -1
 
 		df["2 Month Date"] = (df.Date.shift(61)).dt.date
-		df["2 Month Price"] = ( df["Close Price"].shift(61) )
-		df["2 Month Returns"] = ( df["Close Price"]/df["Close Price"].shift(61) ) -1
+		df["2 Month Price"] = ( df["Close"].shift(61) )
+		df["2 Month Returns"] = ( df["Close"]/df["Close"].shift(61) ) -1
 
 
 		df["3 Month Date"] = (df.Date.shift(91)).dt.date
-		df["3 Month Price"] = ( df["Close Price"].shift(91) )
-		df["3 Month Returns"] = ( df["Close Price"]/df["Close Price"].shift(91) ) -1
+		df["3 Month Price"] = ( df["Close"].shift(91) )
+		df["3 Month Returns"] = ( df["Close"]/df["Close"].shift(91) ) -1
 
 		df["6 Month Date"] = (df.Date.shift(182)).dt.date
-		df["6 Month Price"] = ( df["Close Price"].shift(182) )
-		df["6 Month Returns"] = ( df["Close Price"]/df["Close Price"].shift(182) ) -1
+		df["6 Month Price"] = ( df["Close"].shift(182) )
+		df["6 Month Returns"] = ( df["Close"]/df["Close"].shift(182) ) -1
 
 		df["9 Month Date"] = (df.Date.shift(273)).dt.date
-		df["9 Month Price"] = ( df["Close Price"].shift(273) )
-		df["9 Month Returns"] = ( df["Close Price"]/df["Close Price"].shift(273) ) -1
+		df["9 Month Price"] = ( df["Close"].shift(273) )
+		df["9 Month Returns"] = ( df["Close"]/df["Close"].shift(273) ) -1
 
 		df["1 Year Date"] = (df.Date.shift(365)).dt.date
-		df["1 Year Price"] = ( df["Close Price"].shift(365) )
-		df["1 Year Returns"] = ( df["Close Price"]/df["Close Price"].shift(365) ) -1
+		df["1 Year Price"] = ( df["Close"].shift(365) )
+		df["1 Year Returns"] = ( df["Close"]/df["Close"].shift(365) ) -1
 
 		df["2 Year Date"] = (df.Date.shift(730)).dt.date
-		df["2 Year Price"] = ( df["Close Price"].shift(730) )
-		df["2 Year Returns"] = ( df["Close Price"]/df["Close Price"].shift(730) ) -1
+		df["2 Year Price"] = ( df["Close"].shift(730) )
+		df["2 Year Returns"] = ( df["Close"]/df["Close"].shift(730) ) -1
 
 		# df["5 Year Date"] = (df.Date.shift(1826)).dt.date
 		# df["5 Year Price"] = ( df["Close Price"].shift(1826) )
@@ -436,10 +472,12 @@ class data:
 			df.to_excel("{}.xls".format(self.indexName))
 		else:
 			df.to_excel(link+"/{}.xls".format(self.indexName))
+		print("Returns calculated and stored in file {}.xls".format(self.indexName))
+
 
 
 	def calculateReturnsForStocks(self,data,link=None):
-		# print(data)
+
 		df = data
 		df["Date"] = df.index
 		df["Date"] = pd.to_datetime(df["Date"]).dt.date
@@ -447,7 +485,6 @@ class data:
 		endActual = (df.iloc[0]["Date"]).strftime('%Y-%m-%d')
 		startActual = (df.iloc[-1]["Date"]).strftime('%Y-%m-%d')
 
-		print(df)
 		df = df.drop_duplicates()
 		df = df.pivot(index = "Date",columns = "Close Price")
 		start_date = df.index.min() - pd.DateOffset(day=1)
@@ -512,7 +549,6 @@ class data:
 
 		ar = (np.where(df["1 Day Returns"]==0))
 		df.drop(df.index[ar],inplace=True)
-
 		df["Date"] = pd.to_datetime(df["Date"]).dt.date
 		df.index = df["Date"]
 		df.drop(columns="Date",inplace=True)
@@ -520,3 +556,4 @@ class data:
 			df.to_excel("{}.xls".format(self.stockSymbol))
 		else:
 			df.to_excel(link+"/{}.xls".format(self.stockSymbol))
+		print("Returns calculated and stored in file {}.xls".format(self.stockSymbol))

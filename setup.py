@@ -5,9 +5,9 @@ with open("README.md", "r") as fh:
 
 setuptools.setup(
     name="NSEDownload",
-    version="0.1.1",
+    version="0.2.2",
     author="Jinit S",
-    description="Download Stocks and Indices Data from NSE",
+    description="Download Stocks and Indices Daily Data from NSE",
     long_description=long_description,
     long_description_content_type="text/markdown",
   
@@ -17,5 +17,5 @@ setuptools.setup(
         "License :: OSI Approved :: MIT License",
         "Operating System :: OS Independent",
     ],
-    # python_requires='>=3.6',
+   
 )
