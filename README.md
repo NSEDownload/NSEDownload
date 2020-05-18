@@ -10,6 +10,7 @@ Python Library to get publicly available data on NSE website ie. stock quotes, h
     * datetime, timedelta 
     * time
     * os
+    * fuzzywuzzy
 
 
 # Installation #
