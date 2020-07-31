@@ -1,4 +1,4 @@
-Python Library to get publicly available data on NSE website ie. stock quotes, historical data, live indices.
+Python Library to download publicly available data on NSE website for stocks and indices.
 
 # Libraries Required #
 
