@@ -1,0 +1,6 @@
+beautifulsoup4
+requests
+numpy
+pandas
+timedelta
+fuzzywuzzy
