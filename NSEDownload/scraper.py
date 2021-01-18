@@ -13,7 +13,8 @@ def scrape_givendate(x, y, indexName, first, types = 0, stockSymbol = None, symb
 	result = pd.DataFrame()
 	stage = 0
 	total_stages = math.ceil((y-x).days/365)
-
+	response = []
+	
 	init_bar(total_stages)
 
 	while(True):
@@ -67,7 +68,7 @@ def scrape_givendate(x, y, indexName, first, types = 0, stockSymbol = None, symb
 					url = first + '?indexType='+(indexName)+ '&fromDate='+ fromdate + '&toDate='+ todate;
 
 				try:
-					response = requests.get(url, timeout = 20,headers = headers)
+					response = requests.get(url, timeout = 20, headers = headers)
 				except requests.exceptions.RequestException as e: 
 					SystemExit(e)
 
