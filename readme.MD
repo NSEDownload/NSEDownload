@@ -17,8 +17,7 @@ Python Library to download publicly available data on NSE website for stocks and
 
 ```
 git clone https://github.com/NSEDownload/NSEDownload
-cd NSEDownload
-pip3 install ./dist/NSEDownload-3.0.0.tar.gz 
+pip3 install NSEDownload/dist/NSEDownload-3.0.0.tar.gz 
 ```
 
 # Usage #
