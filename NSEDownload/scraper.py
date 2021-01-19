@@ -8,7 +8,12 @@ import math
 from NSEDownload.progress_bar import init_bar, print_bar, end_bar
 from NSEDownload.static_data import values, arr, valuesTRI, arrTRI, headers
 
+attempt = 0
+
 def scrape_givendate(x, y, indexName, first, types = 0, stockSymbol = None, symbolCount = None):
+
+	original_x = x
+	original_y = y
 
 	result = pd.DataFrame()
 	stage = 0
@@ -19,27 +24,27 @@ def scrape_givendate(x, y, indexName, first, types = 0, stockSymbol = None, symb
 
 	while(True):
 		if((y-x).days < 365):
+
+			fromdate = x.strftime("%d-%m-%Y")
+			todate   = y.strftime("%d-%m-%Y")
+
+			if(types==1):
+				url = first + '?symbol='+(stockSymbol)+ '&segmentLink=3&symbolCount'+ symbolCount+ "&series=EQ&dateRange=+&fromDate="+fromdate+"&toDate="+todate+"&dataType=PRICEVOLUMEDELIVERABLE"			
+			else:
+				url = first + '?indexType='+(indexName)+ '&fromDate='+ fromdate + '&toDate='+ todate;
+
 			try:
+				response = requests.get(url, timeout = 20, headers = headers)
+			except requests.exceptions.RequestException as e: 
+				SystemExit(e)
+			except Exception as e:
+				SystemExit(e)
 
-				fromdate = x.strftime("%d-%m-%Y")
-				todate   = y.strftime("%d-%m-%Y")
+			if(response.status_code == requests.codes.ok):
 
-				if(types==1):
-					url = first + '?symbol='+(stockSymbol)+ '&segmentLink=3&symbolCount'+ symbolCount+ "&series=EQ&dateRange=+&fromDate="+fromdate+"&toDate="+todate+"&dataType=PRICEVOLUMEDELIVERABLE"			
-				else:
-					url = first + '?indexType='+(indexName)+ '&fromDate='+ fromdate + '&toDate='+ todate;
+				page_content = BeautifulSoup(response.content, "html.parser")
 
 				try:
-					response = requests.get(url, timeout = 20, headers = headers)
-				except requests.exceptions.RequestException as e: 
-					SystemExit(e)
-				except Exception as e:
-					SystemExit(e)
-
-				if(response.status_code == requests.codes.ok):
-
-					page_content = BeautifulSoup(response.content, "html.parser")
-
 					a = page_content.find(id="csvContentDiv").get_text();
 					a = a.replace(':',", \n")
 
@@ -54,36 +59,40 @@ def scrape_givendate(x, y, indexName, first, types = 0, stockSymbol = None, symb
 					print_bar(stage, total_stages)
 					stage = stage+1
 
+				except AttributeError:
+					# if(total_stages <= 1):
+						# print("No data available from " + str(fromdate) + " to " + str(todate))
 					break;
 
-				else:
-					response.raise_for_status()
+			else:
+				response.raise_for_status()
 
-
-			except AttributeError:
-				break
+			break;
 
 		if ((y-x).days >= 365 ):
-			try:
-				todate= y.strftime("%d-%m-%Y")
-				fromdate = ( y - datetime.timedelta(days=364) ).strftime("%d-%m-%Y")
-				inter =  y - datetime.timedelta(days=364) 
 
-				if(types==1):
-					url = first + '?symbol='+(stockSymbol)+ '&segmentLink=3&symbolCount'+ symbolCount+ "&series=EQ&dateRange=+&fromDate="+fromdate+"&toDate="+todate+"&dataType=PRICEVOLUMEDELIVERABLE"			
-				else:
-					url = first + '?indexType='+(indexName)+ '&fromDate='+ fromdate + '&toDate='+ todate;
+			todate   = y.strftime("%d-%m-%Y")
+			fromdate = ( y - datetime.timedelta(days=364) ).strftime("%d-%m-%Y")
+			inter    =  y - datetime.timedelta(days=364) 
+
+			if(types==1):
+				url = first + '?symbol='+(stockSymbol)+ '&segmentLink=3&symbolCount'+ symbolCount+ "&series=EQ&dateRange=+&fromDate="+fromdate+"&toDate="+todate+"&dataType=PRICEVOLUMEDELIVERABLE"			
+			else:
+				url = first + '?indexType='+(indexName)+ '&fromDate='+ fromdate + '&toDate='+ todate;
+
+			try:
+				response = requests.get(url, timeout = 20, headers = headers)
+			except requests.exceptions.RequestException as e: 
+				SystemExit(e)
+			except Exception as e:
+				SystemExit(e)
+
+			if(response.status_code == requests.codes.ok):
+
+				page_content = BeautifulSoup(response.content, "html.parser")
+				y = ( inter - datetime.timedelta(days=1) )
 
 				try:
-					response = requests.get(url, timeout = 20, headers = headers)
-				except requests.exceptions.RequestException as e: 
-					SystemExit(e)
-				except Exception as e:
-					SystemExit(e)
-
-				if(response.status_code == requests.codes.ok):
-					page_content = BeautifulSoup(response.content, "html.parser")
-
 					a = page_content.find(id="csvContentDiv").get_text();
 					a = a.replace(':',", \n")
 
@@ -94,22 +103,37 @@ def scrape_givendate(x, y, indexName, first, types = 0, stockSymbol = None, symb
 					df.set_index("Date",inplace=True)
 					df = df[::-1]
 					result = pd.concat([result,df])
-					y = ( inter - datetime.timedelta(days=1) )
 
 					print_bar(stage, total_stages)
 					stage = stage+1
 
-				else:
-					response.raise_for_status()
+				except AttributeError:
+					pass
+					# print("No data available from " + str(fromdate) + " to " + str(todate))
 
 
-			except AttributeError:
-				break;
+			else:
+				response.raise_for_status()
 
 	try:
 		os.remove("data.csv")
 	except(OSError):
 		pass
+
+
+	global attempt
+
+	if(len(result) == 0 and attempt == 0):
+		attempt = attempt + 1
+		print("Unsuccessful attempt. Trying again.")
+		scrape_givendate(original_x, original_y, indexName, first, types, stockSymbol, symbolCount)
+
+	elif(len(result) == 0 and attempt == 1):
+		print("Error : Empty dataframe. Please try Again.")
+		return result
+
+	if(attempt == 1):
+		attempt = 0
 
 	end_bar(total_stages)
 
@@ -128,28 +152,28 @@ def scrape_fulldata( indexName, first , types = 0, stockSymbol = None, symbolCou
 	init_bar(total_stages)
 
 	while(True):
+
+		todate   = x.strftime("%d-%m-%Y")
+		fromdate = y.strftime("%d-%m-%Y")
+
+		if(types==1):
+			url = first + '?symbol='+(stockSymbol)+ '&segmentLink=3&symbolCount'+ symbolCount+ "&series=EQ&dateRange=+&fromDate="+fromdate+"&toDate="+todate+"&dataType=PRICEVOLUMEDELIVERABLE"			
+		else:
+			url = first + '?indexType='+(indexName)+ '&fromDate='+ fromdate + '&toDate='+ todate;
+
 		try:
+			response = requests.get(url, timeout = 20, headers = headers)
+		except requests.exceptions.RequestException as e: 
+			raise SystemExit(e)
+		except Exception as e:
+				SystemExit(e)
 
-			todate   = x.strftime("%d-%m-%Y")
-			fromdate = y.strftime("%d-%m-%Y")
+		if(response.status_code == requests.codes.ok):
 
-			if(types==1):
-				url = first + '?symbol='+(stockSymbol)+ '&segmentLink=3&symbolCount'+ symbolCount+ "&series=EQ&dateRange=+&fromDate="+fromdate+"&toDate="+todate+"&dataType=PRICEVOLUMEDELIVERABLE"			
-			else:
-				url = first + '?indexType='+(indexName)+ '&fromDate='+ fromdate + '&toDate='+ todate;
+			page_content = BeautifulSoup(response.content, "html.parser")
 
 			try:
-				response = requests.get(url, timeout = 20, headers = headers)
-			except requests.exceptions.RequestException as e: 
-				raise SystemExit(e)
-			except Exception as e:
-					SystemExit(e)
-
-			if(response.status_code == requests.codes.ok):
-
-				page_content = BeautifulSoup(response.content, "html.parser")
-
-				a=page_content.find(id = "csvContentDiv").get_text();
+				a = page_content.find(id = "csvContentDiv").get_text();
 				a = a.replace(':',", \n")
 
 				with open("data.csv", "w") as f:
@@ -165,18 +189,34 @@ def scrape_fulldata( indexName, first , types = 0, stockSymbol = None, symbolCou
 
 				print_bar(stage, total_stages)
 				stage = stage+1
-				
-			else:
-				response.raise_for_status()
 
+			except AttributeError:
+				# print("No data available from " + str(fromdate) + " to " + str(todate))
+				break;
 
-		except AttributeError:
-			break;
+			
+		else:
+			response.raise_for_status()
 
 	try:
 		os.remove("data.csv")
 	except(OSError):
 		pass
+
+	global attempt
+
+	if(len(result) == 0 and attempt == 0):
+		attempt = attempt + 1
+		print("Unsuccessful attempt. Trying again.")
+		scrape_fulldata( indexName, first , types, stockSymbol, symbolCount)
+		
+
+	elif(len(result) == 0 and attempt == 1):
+		print("Error : Empty dataframe. Please try Again.")
+		return result
+
+	if(attempt == 1):
+		attempt = 0
 
 	end_bar(total_stages)
 
