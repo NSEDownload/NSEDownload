@@ -58,7 +58,6 @@ Date                                                  ...
 ```
 from NSEDownload import returns
 returns.calcualte_returns(df, "RELIANCE")
-
 ```
 
 Output : 
