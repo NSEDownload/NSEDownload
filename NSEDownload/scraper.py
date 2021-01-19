@@ -14,7 +14,7 @@ def scrape_givendate(x, y, indexName, first, types = 0, stockSymbol = None, symb
 	stage = 0
 	total_stages = math.ceil((y-x).days/365)
 	response = []
-	
+
 	init_bar(total_stages)
 
 	while(True):
@@ -33,31 +33,38 @@ def scrape_givendate(x, y, indexName, first, types = 0, stockSymbol = None, symb
 					response = requests.get(url, timeout = 20, headers = headers)
 				except requests.exceptions.RequestException as e: 
 					SystemExit(e)
+				except Exception as e:
+					SystemExit(e)
 
-				page_content = BeautifulSoup(response.content, "html.parser")
+				if(response.status_code == requests.codes.ok):
 
-				a = page_content.find(id="csvContentDiv").get_text();
-				a = a.replace(':',", \n")
+					page_content = BeautifulSoup(response.content, "html.parser")
 
-				with open("data.csv", "w") as f:
-					f.write(a)
+					a = page_content.find(id="csvContentDiv").get_text();
+					a = a.replace(':',", \n")
 
-				df = pd.read_csv("data.csv")
-				df.set_index("Date",inplace=True)
-				df = df[::-1]
-				result = pd.concat([result,df])
+					with open("data.csv", "w") as f:
+						f.write(a)
 
-				print_bar(stage, total_stages)
-				stage = stage+1
+					df = pd.read_csv("data.csv")
+					df.set_index("Date",inplace=True)
+					df = df[::-1]
+					result = pd.concat([result,df])
 
-				break;
+					print_bar(stage, total_stages)
+					stage = stage+1
+
+					break;
+
+				else:
+					response.raise_for_status()
+
 
 			except AttributeError:
 				break
 
 		if ((y-x).days >= 365 ):
 			try:
-
 				todate= y.strftime("%d-%m-%Y")
 				fromdate = ( y - datetime.timedelta(days=364) ).strftime("%d-%m-%Y")
 				inter =  y - datetime.timedelta(days=364) 
@@ -71,23 +78,30 @@ def scrape_givendate(x, y, indexName, first, types = 0, stockSymbol = None, symb
 					response = requests.get(url, timeout = 20, headers = headers)
 				except requests.exceptions.RequestException as e: 
 					SystemExit(e)
+				except Exception as e:
+					SystemExit(e)
 
-				page_content = BeautifulSoup(response.content, "html.parser")
+				if(response.status_code == requests.codes.ok):
+					page_content = BeautifulSoup(response.content, "html.parser")
 
-				a = page_content.find(id="csvContentDiv").get_text();
-				a = a.replace(':',", \n")
+					a = page_content.find(id="csvContentDiv").get_text();
+					a = a.replace(':',", \n")
 
-				with open("data.csv", "w") as f:
-					f.write(a)
+					with open("data.csv", "w") as f:
+						f.write(a)
 
-				df = pd.read_csv("data.csv")
-				df.set_index("Date",inplace=True)
-				df = df[::-1]
-				result = pd.concat([result,df])
-				y = ( inter - datetime.timedelta(days=1) )
+					df = pd.read_csv("data.csv")
+					df.set_index("Date",inplace=True)
+					df = df[::-1]
+					result = pd.concat([result,df])
+					y = ( inter - datetime.timedelta(days=1) )
 
-				print_bar(stage, total_stages)
-				stage = stage+1
+					print_bar(stage, total_stages)
+					stage = stage+1
+
+				else:
+					response.raise_for_status()
+
 
 			except AttributeError:
 				break;
@@ -128,26 +142,34 @@ def scrape_fulldata( indexName, first , types = 0, stockSymbol = None, symbolCou
 				response = requests.get(url, timeout = 20, headers = headers)
 			except requests.exceptions.RequestException as e: 
 				raise SystemExit(e)
+			except Exception as e:
+					SystemExit(e)
 
-			page_content = BeautifulSoup(response.content, "html.parser")
+			if(response.status_code == requests.codes.ok):
 
-			a=page_content.find(id = "csvContentDiv").get_text();
-			a = a.replace(':',", \n")
+				page_content = BeautifulSoup(response.content, "html.parser")
 
-			with open("data.csv", "w") as f:
-				f.write(a)
+				a=page_content.find(id = "csvContentDiv").get_text();
+				a = a.replace(':',", \n")
 
-			df = pd.read_csv("data.csv")
-			df.set_index("Date",inplace=True)
-			df = df[::-1]
-			result = pd.concat([result,df])
+				with open("data.csv", "w") as f:
+					f.write(a)
 
-			x = y - datetime.timedelta(days=1)
-			y = x - datetime.timedelta(days=364)
+				df = pd.read_csv("data.csv")
+				df.set_index("Date",inplace=True)
+				df = df[::-1]
+				result = pd.concat([result,df])
 
-			print_bar(stage, total_stages)
-			stage = stage+1
-			
+				x = y - datetime.timedelta(days=1)
+				y = x - datetime.timedelta(days=364)
+
+				print_bar(stage, total_stages)
+				stage = stage+1
+				
+			else:
+				response.raise_for_status()
+
+
 		except AttributeError:
 			break;
 

@@ -9,7 +9,7 @@ stocks_values = ['20MICRONS', '21STCENMGM', '3IINFOTECH', '3MINDIA', '3PLAND', '
 
 headers = {
 	"Host": "www1.nseindia.com",
-	"User-Agent": "Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:69.0) Gecko/20100101 Firefox/69.0",
+	"User-Agent" : "Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:84.0) Gecko/20100101 Firefox/84.0",
 	"Accept": "*/*",
 	"Accept-Language": "en-US,en;q=0.5",
 	"Accept-Encoding": "gzip, deflate, br",
