@@ -2,6 +2,7 @@ Python Library to download publicly available data on NSE website for stocks and
 
 
 If you're looking for stable code, head over to the main branch. I'm testing a new feature in this one - Adjusted stock prices.
+DISCLAIMER - This only works for data after 2010.
 
 # Improvements #
 
