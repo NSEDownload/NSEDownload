@@ -20,3 +20,15 @@ headers = {
 	"Access-Control-Allow-Headers": "Content-Type, Access-Control-Allow-Headers, Authorization, X-Requested-With",
 	'Content-Type' : 'application/x-www-form-urlencoded; charset=UTF-8'
 }
+
+
+headers_adjusted = {
+    'Host': 'www1.nseindia.com',
+    'User-Agent': 'Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:85.0) Gecko/20100101 Firefox/85.0',
+    'Accept': '*/*',
+    'Accept-Language': 'en-US,en;q=0.5',
+    'Accept-Encoding': 'gzip, deflate, br',
+    'X-Requested-With': 'XMLHttpRequest',
+    'DNT': '1',
+    'Connection': 'keep-alive',
+  }

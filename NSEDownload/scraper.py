@@ -6,7 +6,7 @@ import os
 import math
 
 from NSEDownload.progress_bar import init_bar, print_bar, end_bar
-from NSEDownload.static_data import values, arr, valuesTRI, arrTRI, headers
+from NSEDownload.static_data import values, arr, valuesTRI, arrTRI, headers, headers_adjusted
 
 attempt = 0
 
@@ -221,4 +221,46 @@ def scrape_fulldata( indexName, first , types = 0, stockSymbol = None, symbolCou
 	end_bar(total_stages)
 
 	return result
+
+
+def scrape_bonus_splits(stockSymbol, event_type)
+
+	dates = [];	ratio = []
+
+	if(not (event_type == "SPLIT" or event_type == "BONUS")):
+		print("Event type not understood")
+		return [ratio, dates]
+
+	url = "https://www1.nseindia.com/corporates/corpInfo/equities/getCorpActions.jsp?symbol=" + stockSymbol + "&Industry=&ExDt=More%20than%2024%20Months&exDt=More%20than%2024%20Months&recordDt=&bcstartDt=&industry=&CAType=" + event_type
+	response = requests.get(url, timeout = 60, headers = headers_adjusted)
+
+	page_content = BeautifulSoup(response.content, "html.parser")
+	page_content = page_content.text.replace('\n','')
+	page_content = page_content.replace('\t','')
+
+	date_start = page_content.find('exDt:"')
+	date_end = page_content.find(',', date_start)
+
+	while(date_start != -1):
+
+		sub_start = page_content.find('Spl')
+		if(event_type == "BONUS"):
+		  sub_start = page_content.find('Bonus')
+
+		sub_end = page_content.find(',', sub_start)
+
+		num = re.findall('\d+',page_content[sub_start:sub_end])
+
+		if(event_type == "BONUS"):
+			ratio.append((int(num[0])+int(num[1]))/int(num[1]))
+		else:
+			ratio.append(int(num[0])/int(num[1]))
+
+		dates.append(page_content[date_start+6:date_end-1])
+		page_content = page_content[date_end:-1]
+
+		date_start = page_content.find('exDt:"')
+		date_end = page_content.find(',', date_start)
+
+	return [ratio, dates]
 

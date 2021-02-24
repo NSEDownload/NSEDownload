@@ -7,10 +7,10 @@ import os
 
 from NSEDownload.static_data import values, arr, valuesTRI, arrTRI, headers, stocks_values
 from NSEDownload.check import check_name
-from NSEDownload.scraper import scrape_givendate, scrape_fulldata
+from NSEDownload.scraper import scrape_givendate, scrape_fulldata, scrape_bonus_splits
 
 
-def get_data(stockSymbol,full_data=None,start_date=None,end_date=None):
+def get_data(stockSymbol, full_data = None, start_date = None, end_date = None):
 
 	check_name(stocks_values, stocks_values, stockSymbol)
 
@@ -36,7 +36,7 @@ def get_data(stockSymbol,full_data=None,start_date=None,end_date=None):
 
 		result = scrape_givendate(x, y, None, first, 1, stockSymbol, symbolCount)
 	
-	elif(full_data =="Yes" or full_data=="yes" or full_data==True or full_data=="Y"):
+	elif(full_data == "Yes" or full_data == "yes" or full_data == True or full_data == "Y"):
 			result = scrape_fulldata(None, first, 1, stockSymbol, symbolCount)
 
 	try:
@@ -45,3 +45,32 @@ def get_data(stockSymbol,full_data=None,start_date=None,end_date=None):
 		pass
 
 	return result
+
+
+def adjusted_price(stockSymbol, df):
+
+	events = ['SPLIT', 'BONUS']
+	arr = ['Open Price', 'High Price', 'Low Price' , 'Last Price', 'Close Price', 'Average Price']
+
+
+	if(df.empty):
+		print("Please check data. Dataframe is empty")
+		return df
+
+	for event in events:
+		
+		ratio, dates = scrape_bonus_splits(stockSymbol, event)
+		for i in range(len(dates)):
+
+			date = datetime.datetime.strptime(dates[i],'%d-%b-%Y')
+			print(event," on : ", dates[i], " and ratio is : ", ratio[i])
+
+			changed_data = df.loc[df.index < date]
+			same_data    = df.loc[df.index >= date]
+
+			for j in arr:
+			  changed_data.loc[:, j] = changed_data.loc[:, j]/ratio[i]
+
+			df = pd.concat([same_data, changed_data])
+
+	return df
