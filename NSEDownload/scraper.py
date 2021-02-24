@@ -1,15 +1,11 @@
 import pandas as pd
-import datetime, timedelta
-import requests
 from bs4 import BeautifulSoup 
-import os
-import math
+import datetime, timedelta, requests, os, re, math
 
 from NSEDownload.progress_bar import init_bar, print_bar, end_bar
 from NSEDownload.static_data import values, arr, valuesTRI, arrTRI, headers, headers_adjusted
 
 attempt = 0
-
 def scrape_givendate(x, y, indexName, first, types = 0, stockSymbol = None, symbolCount = None):
 
 	original_x = x
@@ -223,7 +219,7 @@ def scrape_fulldata( indexName, first , types = 0, stockSymbol = None, symbolCou
 	return result
 
 
-def scrape_bonus_splits(stockSymbol, event_type)
+def scrape_bonus_splits(stockSymbol, event_type):
 
 	dates = [];	ratio = []
 

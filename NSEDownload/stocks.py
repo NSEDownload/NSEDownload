@@ -1,9 +1,7 @@
 import pandas as pd
-import datetime, timedelta
-import time
-import requests
+pd.options.mode.chained_assignment = None  # default='warn'
+import datetime, timedelta, time, requests, os
 from bs4 import BeautifulSoup 
-import os
 
 from NSEDownload.static_data import values, arr, valuesTRI, arrTRI, headers, stocks_values
 from NSEDownload.check import check_name
@@ -47,15 +45,21 @@ def get_data(stockSymbol, full_data = None, start_date = None, end_date = None):
 	return result
 
 
-def adjusted_price(stockSymbol, df):
+def get_adjusted_data(stockSymbol, df):
 
 	events = ['SPLIT', 'BONUS']
 	arr = ['Open Price', 'High Price', 'Low Price' , 'Last Price', 'Close Price', 'Average Price']
 
-
 	if(df.empty):
 		print("Please check data. Dataframe is empty")
 		return df
+
+	df.index = pd.to_datetime(df.index)
+
+	try:
+		df = df.drop(['Prev Close'], axis = 1)
+	except KeyError:
+		pass
 
 	for event in events:
 		
