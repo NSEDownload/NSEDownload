@@ -1,5 +1,6 @@
 Python Library to download publicly available data on NSE website for stocks and indices. Get the price history of stocks and NSE indices directly in pandas dataframe
 
+Check Branch 3.1 for <b> Adjusted stock prices.</b>
 # Libraries Required #
 
     * requests 
