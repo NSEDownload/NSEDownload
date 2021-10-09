@@ -23,6 +23,9 @@ def get_data(stockSymbol, full_data = None, start_date = None, end_date = None):
 	except requests.exceptions.RequestException as e: 
 		raise SystemExit(e)
 
+	if(response.status_code != requests.codes.ok):
+		response.raise_for_status()
+
 	page_content = BeautifulSoup(response.content, "html.parser")
 	symbolCount = (str(page_content))
 
