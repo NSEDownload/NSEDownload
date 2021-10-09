@@ -12,6 +12,8 @@ def get_data(stockSymbol, full_data = None, start_date = None, end_date = None):
 
 	check_name(stocks_values, stocks_values, stockSymbol)
 
+	stockSymbol = stockSymbol.replace('&','%26')
+
 	first = 'https://www1.nseindia.com/products/dynaContent/common/productsSymbolMapping.jsp'
 	urlpost = "https://www1.nseindia.com/marketinfo/sym_map/symbolCount.jsp?symbol="
 	data = {"symbol":stockSymbol}
