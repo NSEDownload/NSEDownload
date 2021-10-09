@@ -4,3 +4,4 @@ numpy
 pandas
 timedelta
 fuzzywuzzy
+python-Levenshtein
