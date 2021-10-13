@@ -18,7 +18,7 @@ I tried the stocks in Nifty 50 and the bug appeared a few times. But when I reru
 
 ```
 !git clone -b '3.1' https://github.com/NSEDownload/NSEDownload
-!pip3 install NSEDownload/dist/NSEDownload-3.1.2.tar.gz 
+!pip3 install NSEDownload/dist/NSEDownload-3.1.3.tar.gz 
 ```
 
 # Usage #

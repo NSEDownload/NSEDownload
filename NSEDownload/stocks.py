@@ -55,6 +55,8 @@ def get_adjusted_data(stockSymbol, df):
 	events = ['SPLIT', 'BONUS']
 	arr = ['Open Price', 'High Price', 'Low Price' , 'Last Price', 'Close Price', 'Average Price']
 
+	stockSymbol = stockSymbol.replace('&','%26')
+
 	if(df.empty):
 		print("Please check data. Dataframe is empty")
 		return df
