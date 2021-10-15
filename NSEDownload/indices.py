@@ -1,36 +1,35 @@
 import datetime
-from datetime import datetime
 from NSEDownload.static_data import values, arr, valuesTRI, arrTRI, get_historical_index_url, get_TRI_index_url
 from NSEDownload.check import check_name
 from NSEDownload.scraper import scrape_data
 
-def get_data(indexName, full_data = None, start_date = None, end_date = None, indextype = None):
 
-	Array, Values = arr, values
+def get_data(indexName, full_data=None, start_date=None, end_date=None, indextype=None):
 
-	url = get_historical_index_url()
+    Array, Values = arr, values
 
-	if(indextype == "TRI" or indextype == "tri" or indextype == "T" or indextype == 't'):
-		url, Values, Array  =  get_TRI_index_url, valuesTRI, arrTRI
+    url = get_historical_index_url()
 
-	check_name(Array, Values, indexName)
+    if(indextype == "TRI" or indextype == "tri" or indextype == "T" or indextype == 't'):
+        url, Values, Array = get_TRI_index_url, valuesTRI, arrTRI
 
-	if(full_data == None or full_data=="No"):
+    check_name(Array, Values, indexName)
 
-		x = datetime.strptime(start_date,"%d-%m-%Y")
-		y = datetime.strptime(end_date,"%d-%m-%Y")
+    if(full_data == None or full_data == "No"):
 
-		if(x > y):
-			raise ValueError("Starting date is greater than end date.")
-		
+        x = datetime.datetime.strptime(start_date, "%d-%m-%Y")
+        y = datetime.datetime.strptime(end_date, "%d-%m-%Y")
 
-	elif(full_data =="Yes" or full_data == "yes" or full_data==True or full_data=="Y"):
+        if(x > y):
+            raise ValueError("Starting date is greater than end date.")
 
-		x = datetime.strptime('1-1-1992',"%d-%m-%Y")
-		y = datetime.today()
+    elif(full_data == "Yes" or full_data == "yes" or full_data == True or full_data == "Y"):
 
-		if(x > y):
-			raise ValueError("Starting date is greater than end date.")
+        x = datetime.datetime.strptime('1-1-1992', "%d-%m-%Y")
+        y = datetime.datetime.today()
 
-	result = scrape_data(x, y, 'index', indexName, url)
-	return result
+        if(x > y):
+            raise ValueError("Starting date is greater than end date.")
+
+    result = scrape_data(x, y, 'index', indexName, url)
+    return result
