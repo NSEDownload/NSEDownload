@@ -1,221 +1,85 @@
-import pandas as pd
 from bs4 import BeautifulSoup 
-import datetime, timedelta, requests, os, re, math
+import datetime, requests, os, re, math, threading, queue, pandas as pd
+from NSEDownload.static_data import get_headers, get_adjusted_headers, get_symbol_mapping_url, get_company_events_url, get_symbol_count_url
 
-from NSEDownload.progress_bar import init_bar, print_bar, end_bar
-from NSEDownload.static_data import values, arr, valuesTRI, arrTRI, headers, headers_adjusted
+q = queue.Queue()
+interm_dfs = []
 
-attempt = 0
-def scrape_givendate(x, y, indexName, first, types = 0, stockSymbol = None, symbolCount = None):
+def worker_thread():
 
-	original_x = x
-	original_y = y
+	while True:
 
-	result = pd.DataFrame()
-	stage = 0
-	total_stages = math.ceil((y-x).days/365)
-	response = []
-
-	init_bar(total_stages)
-
-	while(True):
-		if((y-x).days < 365):
-
-			fromdate = x.strftime("%d-%m-%Y")
-			todate   = y.strftime("%d-%m-%Y")
-
-			if(types==1):
-				url = first + '?symbol='+(stockSymbol)+ '&segmentLink=3&symbolCount'+ symbolCount+ "&series=EQ&dateRange=+&fromDate="+fromdate+"&toDate="+todate+"&dataType=PRICEVOLUMEDELIVERABLE"			
-			else:
-				url = first + '?indexType='+(indexName)+ '&fromDate='+ fromdate + '&toDate='+ todate;
-
-			try:
-				response = requests.get(url, timeout = 20, headers = headers)
-			except requests.exceptions.RequestException as e: 
-				SystemExit(e)
-			except Exception as e:
-				SystemExit(e)
-
-			if(response.status_code == requests.codes.ok):
-
-				page_content = BeautifulSoup(response.content, "html.parser")
-
-				try:
-					a = page_content.find(id="csvContentDiv").get_text();
-					a = a.replace(':',", \n")
-
-					with open("data.csv", "w") as f:
-						f.write(a)
-
-					df = pd.read_csv("data.csv")
-					df.set_index("Date",inplace=True)
-					df = df[::-1]
-					result = pd.concat([result,df])
-
-					print_bar(stage, total_stages)
-					stage = stage+1
-
-				except AttributeError:
-					# if(total_stages <= 1):
-						# print("No data available from " + str(fromdate) + " to " + str(todate))
-					break;
-
-			else:
-				response.raise_for_status()
-
-			break;
-
-		if ((y-x).days >= 365 ):
-
-			todate   = y.strftime("%d-%m-%Y")
-			fromdate = ( y - datetime.timedelta(days=364) ).strftime("%d-%m-%Y")
-			inter    =  y - datetime.timedelta(days=364) 
-
-			if(types==1):
-				url = first + '?symbol='+(stockSymbol)+ '&segmentLink=3&symbolCount'+ symbolCount+ "&series=EQ&dateRange=+&fromDate="+fromdate+"&toDate="+todate+"&dataType=PRICEVOLUMEDELIVERABLE"			
-			else:
-				url = first + '?indexType='+(indexName)+ '&fromDate='+ fromdate + '&toDate='+ todate;
-
-			try:
-				response = requests.get(url, timeout = 20, headers = headers)
-			except requests.exceptions.RequestException as e: 
-				SystemExit(e)
-			except Exception as e:
-				SystemExit(e)
-
-			if(response.status_code == requests.codes.ok):
-
-				page_content = BeautifulSoup(response.content, "html.parser")
-				y = ( inter - datetime.timedelta(days=1) )
-
-				try:
-					a = page_content.find(id="csvContentDiv").get_text();
-					a = a.replace(':',", \n")
-
-					with open("data.csv", "w") as f:
-						f.write(a)
-
-					df = pd.read_csv("data.csv")
-					df.set_index("Date",inplace=True)
-					df = df[::-1]
-					result = pd.concat([result,df])
-
-					print_bar(stage, total_stages)
-					stage = stage+1
-
-				except AttributeError:
-					pass
-					# print("No data available from " + str(fromdate) + " to " + str(todate))
-
-
-			else:
-				response.raise_for_status()
-
-	try:
-		os.remove("data.csv")
-	except(OSError):
-		pass
-
-
-	global attempt
-
-	if(len(result) == 0 and attempt == 0):
-		attempt = attempt + 1
-		print("Unsuccessful attempt. Trying again.")
-		scrape_givendate(original_x, original_y, indexName, first, types, stockSymbol, symbolCount)
-
-	elif(len(result) == 0 and attempt == 1):
-		print("Error : Empty dataframe. Please try Again.")
-		return result
-
-	if(attempt == 1):
-		attempt = 0
-
-	end_bar(total_stages)
-
-	return result
-
-
-def scrape_fulldata( indexName, first , types = 0, stockSymbol = None, symbolCount = None):
-
-	result = pd.DataFrame()
-	x = datetime.datetime.now()
-	y = datetime.datetime.now() - datetime.timedelta(days=364)
-	total_stages = math.ceil((y-x).days/365)
-
-	total_stages = 30
-	stage = 0
-	init_bar(total_stages)
-
-	while(True):
-
-		todate   = x.strftime("%d-%m-%Y")
-		fromdate = y.strftime("%d-%m-%Y")
-
-		if(types==1):
-			url = first + '?symbol='+(stockSymbol)+ '&segmentLink=3&symbolCount'+ symbolCount+ "&series=EQ&dateRange=+&fromDate="+fromdate+"&toDate="+todate+"&dataType=PRICEVOLUMEDELIVERABLE"			
-		else:
-			url = first + '?indexType='+(indexName)+ '&fromDate='+ fromdate + '&toDate='+ todate;
-
+		stage, url = q.get()
 		try:
-			response = requests.get(url, timeout = 20, headers = headers)
+			response = requests.get(url, timeout = 20, headers = get_headers())
 		except requests.exceptions.RequestException as e: 
-			raise SystemExit(e)
+			SystemExit(e)
 		except Exception as e:
-				SystemExit(e)
+			SystemExit(e)
 
 		if(response.status_code == requests.codes.ok):
+			
+			try : 
+				page_content = BeautifulSoup(response.content, "html.parser")
+				lines = page_content.find(id = "csvContentDiv").get_text()
+				lines = lines.replace(':',", \n")
+		
+				with open(str(stage) + ".csv", "w") as file:
+					file.write(lines)
 
-			page_content = BeautifulSoup(response.content, "html.parser")
-
-			try:
-				a = page_content.find(id = "csvContentDiv").get_text();
-				a = a.replace(':',", \n")
-
-				with open("data.csv", "w") as f:
-					f.write(a)
-
-				df = pd.read_csv("data.csv")
+				df = pd.read_csv(str(stage) + ".csv")
 				df.set_index("Date",inplace=True)
 				df = df[::-1]
-				result = pd.concat([result,df])
 
-				x = y - datetime.timedelta(days=1)
-				y = x - datetime.timedelta(days=364)
-
-				print_bar(stage, total_stages)
-				stage = stage+1
+				interm_dfs[stage] = df
 
 			except AttributeError:
-				# print("No data available from " + str(fromdate) + " to " + str(todate))
-				break;
+				pass
 
-			
-		else:
-			response.raise_for_status()
+		try:
+			os.remove(str(stage) + ".csv")
+		except(OSError):
+			pass
 
-	try:
-		os.remove("data.csv")
-	except(OSError):
-		pass
+		q.task_done()
 
-	global attempt
 
-	if(len(result) == 0 and attempt == 0):
-		attempt = attempt + 1
-		print("Unsuccessful attempt. Trying again.")
-		scrape_fulldata( indexName, first , types, stockSymbol, symbolCount)
+def scrape_data(x, y, type, indexName = None, url = None, stockSymbol = None, symbolCount = None):
+
+	stage, total_stages = 0, math.ceil((y-x).days/365)
+
+	threading.Thread(target = worker_thread).start()
+	
+	global interm_dfs
+	interm_dfs = [pd.DataFrame()]* total_stages
+
+	for stage in range(total_stages):
+
+		start_date = x + stage * datetime.timedelta(days=365)
+		end_date   = start_date + datetime.timedelta(days=364)
+	
+		if(start_date > y):
+			break
+
+		if(end_date > y):
+			end_date = y
+
+		if(type == 'stock'):
+			url = get_symbol_mapping_url() + '?symbol='+ stockSymbol+ '&segmentLink=3&symbolCount'+ symbolCount+ "&series=EQ&dateRange=+&fromDate="+start_date.strftime("%d-%m-%Y")+"&toDate="+end_date.strftime("%d-%m-%Y")+"&dataType=PRICEVOLUMEDELIVERABLE"			
 		
+		if(type == 'index'):
+			url = url + '?indexType='+indexName+ '&fromDate='+ start_date + '&toDate='+ end_date
 
-	elif(len(result) == 0 and attempt == 1):
-		print("Error : Empty dataframe. Please try Again.")
-		return result
+		q.put([stage, url])
+  
+	q.join()
+ 
+	result = pd.DataFrame()
+	for stage in range(total_stages):
+		result = pd.concat([result, interm_dfs[stage]])
 
-	if(attempt == 1):
-		attempt = 0
-
-	end_bar(total_stages)
-
+	result.index = pd.to_datetime(result.index)
+	result.sort_index(inplace = True)
 	return result
 
 
@@ -227,12 +91,11 @@ def scrape_bonus_splits(stockSymbol, event_type):
 		print("Event type not understood")
 		return [ratio, dates]
 
-	url = "https://www1.nseindia.com/corporates/corpInfo/equities/getCorpActions.jsp?symbol=" + stockSymbol + "&Industry=&ExDt=More%20than%2024%20Months&exDt=More%20than%2024%20Months&recordDt=&bcstartDt=&industry=&CAType=" + event_type
-	response = requests.get(url, timeout = 60, headers = headers_adjusted)
+	url = get_company_events_url() + stockSymbol + "&Industry=&ExDt=More%20than%2024%20Months&exDt=More%20than%2024%20Months&recordDt=&bcstartDt=&industry=&CAType=" + event_type
+	response = requests.get(url, timeout = 60, headers = get_adjusted_headers())
 
 	page_content = BeautifulSoup(response.content, "html.parser")
-	page_content = page_content.text.replace('\n','')
-	page_content = page_content.replace('\t','')
+	page_content = page_content.text.replace('\n','').replace('\t','')
 
 	date_start = page_content.find('exDt:"')
 	date_end = page_content.find(',', date_start)
@@ -260,3 +123,19 @@ def scrape_bonus_splits(stockSymbol, event_type):
 
 	return [ratio, dates]
 
+def scrape_symbolCount(stockSymbol):
+
+	data = {"symbol":stockSymbol}
+
+	try:
+		response = requests.post(get_symbol_count_url(), data = data, headers = get_headers(), timeout = 20)
+	except requests.exceptions.RequestException as e: 
+		raise SystemExit(e)
+
+	if(response.status_code != requests.codes.ok):
+		response.raise_for_status()
+
+	page_content = BeautifulSoup(response.content, "html.parser")
+	symbolCount = str(page_content)
+
+	return symbolCount
