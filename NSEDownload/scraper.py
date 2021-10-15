@@ -78,7 +78,9 @@ def scrape_data(x, y, type, indexName=None, url=None, stockSymbol=None, symbolCo
 
         if(type == 'index'):
             url = url + '?indexType='+indexName + \
-                '&fromDate=' + start_date + '&toDate=' + end_date
+                '&fromDate=' + \
+                start_date.strftime("%d-%m-%Y") + '&toDate=' + \
+                end_date.strftime("%d-%m-%Y")
 
         q.put([stage, url])
 
@@ -95,8 +97,7 @@ def scrape_data(x, y, type, indexName=None, url=None, stockSymbol=None, symbolCo
 
 def scrape_bonus_splits(stockSymbol, event_type):
 
-    dates = []
-    ratio = []
+    dates, ratio = [], []
 
     if(not (event_type == "SPLIT" or event_type == "BONUS")):
         print("Event type not understood")

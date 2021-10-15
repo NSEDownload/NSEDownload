@@ -9,8 +9,6 @@ pd.options.mode.chained_assignment = None
 def get_data(stockSymbol, full_data=None, start_date=None, end_date=None):
 
     check_name(stocks_values, stocks_values, stockSymbol)
-    # print("Download started for :", stockSymbol)
-
     stockSymbol = stockSymbol.replace('&', '%26')
     symbolCount = scrape_symbolCount(stockSymbol)
 
@@ -42,7 +40,7 @@ def get_adjusted_data(stockSymbol, df):
         print("Please check data. Dataframe is empty")
         return df
 
-    df.index = pd.to_datetime.datetime(df.index)
+    df.index = pd.to_datetime(df.index)
     df.sort_index(inplace=True)
 
     try:
