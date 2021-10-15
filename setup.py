@@ -1,10 +1,10 @@
 import setuptools
 
 setuptools.setup(
-    name="NSEDownload",
-    version="3.1.4",
-    author="Jinit S",
-    description="Download Stocks and Indices Data from NSE",
+    name = "NSEDownload",
+    version = "3.1.5",
+    author = "Jinit S",
+    description = "Download Stocks and Indices Data from NSE",
   
     packages=setuptools.find_packages(),
     classifiers=[

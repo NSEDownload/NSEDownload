@@ -13,9 +13,9 @@ def worker_thread():
 		try:
 			response = requests.get(url, timeout = 20, headers = get_headers())
 		except requests.exceptions.RequestException as e: 
-			SystemExit(e)
+			raise SystemExit(e)
 		except Exception as e:
-			SystemExit(e)
+			raise SystemExit(e)
 
 		if(response.status_code == requests.codes.ok):
 			
@@ -47,11 +47,10 @@ def worker_thread():
 def scrape_data(x, y, type, indexName = None, url = None, stockSymbol = None, symbolCount = None):
 
 	stage, total_stages = 0, math.ceil((y-x).days/365)
-
-	threading.Thread(target = worker_thread).start()
-	
 	global interm_dfs
 	interm_dfs = [pd.DataFrame()]* total_stages
+
+	threading.Thread(target = worker_thread).start()
 
 	for stage in range(total_stages):
 
@@ -125,10 +124,8 @@ def scrape_bonus_splits(stockSymbol, event_type):
 
 def scrape_symbolCount(stockSymbol):
 
-	data = {"symbol":stockSymbol}
-
 	try:
-		response = requests.post(get_symbol_count_url(), data = data, headers = get_headers(), timeout = 20)
+		response = requests.post(get_symbol_count_url(), data = {"symbol":stockSymbol}, headers = get_headers(), timeout = 20)
 	except requests.exceptions.RequestException as e: 
 		raise SystemExit(e)
 
