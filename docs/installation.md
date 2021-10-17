@@ -1,5 +1,3 @@
-# **Installation**
-
 <details open markdown="block">
   <summary>
     Table of contents

@@ -1,6 +1,4 @@
-# **Stocks**
 Check out Installation first.
-
 <details open markdown="block">
   <summary>
     Table of contents
