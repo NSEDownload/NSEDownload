@@ -1,0 +1,1 @@
+**NSEDownload** is a python Library to download publicly available data on NSE website for stocks and indices. Get the price history and generate trailing returns of stocks and indices directly as a pandas dataframe.
