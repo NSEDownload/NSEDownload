@@ -1,5 +1,5 @@
-# theme: jekyll-theme-cayman
-remote_theme: pmarsceill/just-the-docs
+theme: jekyll-theme-cayman
+# remote_theme: pmarsceill/just-the-docs
 title: NSEDownload
 description: Python Library to get historical data and generate trailing returns of stocks and indices on the NSE
 search_enabled: false

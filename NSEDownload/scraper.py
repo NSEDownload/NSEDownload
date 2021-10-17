@@ -72,17 +72,17 @@ def scrape_data(x, y, type, indexName=None, url=None, stockSymbol=None, symbolCo
             end_date = y
 
         if(type == 'stock'):
-            url = get_symbol_mapping_url() + '?symbol=' + stockSymbol + '&segmentLink=3&symbolCount' + symbolCount + "&series=EQ&dateRange=+&fromDate=" + \
+            final_url = get_symbol_mapping_url() + '?symbol=' + stockSymbol + '&segmentLink=3&symbolCount' + symbolCount + "&series=EQ&dateRange=+&fromDate=" + \
                 start_date.strftime(
                     "%d-%m-%Y")+"&toDate="+end_date.strftime("%d-%m-%Y")+"&dataType=PRICEVOLUMEDELIVERABLE"
 
         if(type == 'index'):
-            url = url + '?indexType='+indexName + \
+            final_url = url + '?indexType='+indexName + \
                 '&fromDate=' + \
                 start_date.strftime("%d-%m-%Y") + '&toDate=' + \
                 end_date.strftime("%d-%m-%Y")
 
-        q.put([stage, url])
+        q.put([stage, final_url])
 
     q.join()
 

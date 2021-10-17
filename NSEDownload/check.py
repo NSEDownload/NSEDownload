@@ -25,4 +25,4 @@ def check_name(arr, values, indexName):
 
     if(flag == 0):
         raise ValueError(
-            "Check Index name. Try {} as index name.".format(maxVal))
+            "Please check symbol provided. Try {} as name.".format(maxVal))
