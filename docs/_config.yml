@@ -1,10 +1,8 @@
-theme: jekyll-theme-cayman
+# theme: minimal-mistakes-jekyll
 # remote_theme: pmarsceill/just-the-docs
+remote_theme: "mmistakes/minimal-mistakes@4.24.0"
 title: NSEDownload
 description: Python Library to get historical data and generate trailing returns of stocks and indices on the NSE
-search_enabled: false
-aux_links:
-  "NSEDownload on GitHub":
-    - "https://github.com/NSEDownload/NSEDownload/"
-aux_links_new_tab: true
-nav_exclude: true
+url: https://nsedownload.github.io/
+baseurl: NSEDownload/
+repository: NSEDownload/NSEDownload
