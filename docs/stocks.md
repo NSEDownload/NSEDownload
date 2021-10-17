@@ -1,7 +1,18 @@
 # **Stocks**
 Check out Installation first.
 
+<details open markdown="block">
+  <summary>
+    Table of contents
+  </summary>
+  {: .text-delta }
+1. TOC
+{:toc}
+</details>
+
 ## **Downloading Data**
+{:toc}
+
 You can specify the date range either using start and end date or using the full_data. 
 
 ### **Using start and end date** 
@@ -57,6 +68,7 @@ Date                           ...
 
 
 ## **Getting Adjusted Data**
+{:toc}
 This takes care of splits and bonus events after 2010. All events before that are not adjusted.
 
 ```python

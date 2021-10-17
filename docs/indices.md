@@ -1,8 +1,18 @@
-# **Stocks**
+# **Indices**
 Check out Installation first.  
 Indices can be of historical type or total return index. By default, the index is assumed as historical.
 
+<details open markdown="block">
+  <summary>
+    Table of contents
+  </summary>
+  {: .text-delta }
+1. TOC
+{:toc}
+</details>
+
 ## **Downloading Data**
+{:toc}
 You can specify the date range either using start and end date or using the full_data. 
 
 ### **Using start and end date** 
@@ -57,6 +67,7 @@ Date
 ```
 
 ## **Total Returns Index** 
+{:toc}
 Additional 'indextype' has to be set to 'TRI' to use this. The date range can be specified same as above.
 
 ```python

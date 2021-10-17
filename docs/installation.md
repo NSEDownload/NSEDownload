@@ -1,6 +1,17 @@
 # **Installation**
 
+<details open markdown="block">
+  <summary>
+    Table of contents
+  </summary>
+  {: .text-delta }
+1. TOC
+{:toc}
+</details>
+
 ## **Libraries Required**
+{:toc}
+
 All the additional libraries required are installed with the package. You don't need to install anything separately.
 
 ```python
@@ -16,12 +27,16 @@ All the additional libraries required are installed with the package. You don't 
 ```
 
 ## Using Terminal ##
+{:toc}
+
 ```python
 git clone -b '3.1' https://github.com/NSEDownload/NSEDownload
 pip3 install NSEDownload/dist/NSEDownload-3.1.6.1.tar.gz 
 ```
 
 ## On Colab ##
+{:toc}
+
 ```python
 !git clone -b '3.1' https://github.com/NSEDownload/NSEDownload
 !pip3 install NSEDownload/dist/NSEDownload-3.1.6.1.tar.gz 
