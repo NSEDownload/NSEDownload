@@ -6,3 +6,10 @@ description: Python Library to get historical data and generate trailing returns
 url: https://nsedownload.github.io/
 baseurl: NSEDownload/
 repository: NSEDownload/NSEDownload
+plugins:
+  - jekyll-paginate
+  - jekyll-sitemap
+  - jekyll-gist
+  - jekyll-feed
+  - jemoji
+  - jekyll-include-cache
