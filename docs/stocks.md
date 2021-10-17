@@ -1,4 +1,8 @@
+# **Stocks**
+{: .no_toc }
+
 Check out Installation first.
+
 <details open markdown="block">
   <summary>
     Table of contents
@@ -67,6 +71,7 @@ Date                           ...
 
 ## **Getting Adjusted Data**
 {:toc}
+
 This takes care of splits and bonus events after 2010. All events before that are not adjusted.
 
 ```python

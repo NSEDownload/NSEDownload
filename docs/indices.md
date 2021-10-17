@@ -1,3 +1,6 @@
+# **Indices**
+{: .no_toc }
+
 Check out Installation first.  
 Indices can be of historical type or total return index. By default, the index is assumed as historical.
 
