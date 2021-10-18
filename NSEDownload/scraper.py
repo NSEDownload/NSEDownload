@@ -16,16 +16,16 @@ interm_dfs = []
 def worker_thread():
 
     while True:
-
+        
         stage, url = q.get()
         try:
             response = requests.get(url, timeout=20, headers=get_headers())
         except requests.exceptions.RequestException as e:
             print("Please try again. Error has occured \n", e)
-            break
+            return
         except Exception as e:
             print("Please try again. Error has occured \n", e)
-            break
+            return
 
         if(response.status_code == requests.codes.ok):
 
