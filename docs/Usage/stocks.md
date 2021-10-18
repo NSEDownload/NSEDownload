@@ -2,7 +2,7 @@
 layout: default
 title: Stocks
 parent: Usage
-nav_order: 2
+nav_order: 3
 ---
 
 # **Stocks**
