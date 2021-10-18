@@ -21,11 +21,11 @@ def worker_thread():
         try:
             response = requests.get(url, timeout=20, headers=get_headers())
         except requests.exceptions.RequestException as e:
-            print("Please try again. Error has occured", e)
-            q.task_done()
+            print("Please try again. Error has occured \n", e)
+            break
         except Exception as e:
-            print("Please try again. Error has occured", e)
-            q.task_done()
+            print("Please try again. Error has occured \n", e)
+            break
 
         if(response.status_code == requests.codes.ok):
 
