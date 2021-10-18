@@ -1,4 +1,5 @@
 # **NSEDownload** #
+{: .no_toc }
 
 A python Library to download publicly available data on NSE website for stocks and indices. 
 

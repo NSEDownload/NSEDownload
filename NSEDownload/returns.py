@@ -4,7 +4,7 @@ import numpy as np
 pd.options.mode.chained_assignment = None  # default='warn'
 
 
-def calculate_returns(data, name = None, make_csv = False):
+def calculate_returns(data, make_csv=False, name=None):
 
     if(name != None):
         print("Calculating returns for " + name)
@@ -17,14 +17,14 @@ def calculate_returns(data, name = None, make_csv = False):
 
     df = data
     if(len(df) > 1200):
-        df = df.iloc[:1200, :]
+        df = df.iloc[len(df)-1200:len(df), :]
         print("Size reduced to 1200 rows")
 
     df["Date"] = df.index
     df["Date"] = pd.to_datetime(df["Date"]).dt.date
     df = df.rename({'Close Price': 'Close'}, axis='columns')
 
-    startActual  = (df.iloc[0]["Date"]).strftime('%Y-%m-%d')
+    startActual = (df.iloc[0]["Date"]).strftime('%Y-%m-%d')
     endActual = (df.iloc[-1]["Date"]).strftime('%Y-%m-%d')
 
     df = df.drop_duplicates()
@@ -93,11 +93,11 @@ def calculate_returns(data, name = None, make_csv = False):
     # df["5 Year Returns"] = ( df["Close Price"]/df["Close Price"].shift(1826) ) -1
 
     ar = (np.where(df["1 Day Returns"] == 0))
-    df.drop(df.index[ar], inplace = True)
+    df.drop(df.index[ar], inplace=True)
 
     df["Date"] = pd.to_datetime(df["Date"]).dt.date
     df.index = df["Date"]
-    df.drop(columns="Date", inplace = True)
+    df.drop(columns="Date", inplace=True)
 
     try:
         df = df[["Close", "Symbol", "1 Day Returns", "1 Week Returns", "2 Week Returns", "1 Month Returns",
@@ -107,16 +107,15 @@ def calculate_returns(data, name = None, make_csv = False):
                  "3 Month Returns", "6 Month Returns", "9 Month Returns", "1 Year Returns", "2 Year Returns"]]
 
     df = df.iloc[::-1]
+    df.fillna('-', inplace=True)
 
     if(make_csv == True):
 
         if(name == None):
-            df.to_excel("data.csv")
+            df.to_csv("data.csv",float_format='%.2f')
             print("File created : data.csv")
         else:
-            df.to_excel("{}.csv".format(name))
+            df.to_csv("{}.csv".format(name), float_format='%.2f')
             print("File created : {}.csv".format(name))
-
-        return
 
     return df
