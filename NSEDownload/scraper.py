@@ -22,11 +22,14 @@ def worker_thread():
         try:
             response = requests.get(url, timeout=20, headers=get_headers())
         except Exception as e:
+
             if(attempt == 0):
+                attempt = 1
                 continue
+
             print("Please try again. Error has occured \n", e)
             response = None
-            attempt = 1
+            global incomplete_df
             incomplete_df = True
 
         if(response is not None and response.status_code == requests.codes.ok):
