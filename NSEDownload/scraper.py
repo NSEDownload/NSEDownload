@@ -20,14 +20,11 @@ def worker_thread():
         stage, url = q.get()
         try:
             response = requests.get(url, timeout=20, headers=get_headers())
-        except requests.exceptions.RequestException as e:
-            print("Please try again. Error has occured \n", e)
-            return
         except Exception as e:
             print("Please try again. Error has occured \n", e)
-            return
+            response = None
 
-        if(response.status_code == requests.codes.ok):
+        if(response is not None and response.status_code == requests.codes.ok):
 
             try:
                 page_content = BeautifulSoup(response.content, "html.parser")
