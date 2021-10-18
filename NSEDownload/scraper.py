@@ -11,18 +11,23 @@ from NSEDownload.static_data import get_headers, get_adjusted_headers, get_symbo
 
 q = queue.Queue()
 interm_dfs = []
-
+incomplete_df = False
 
 def worker_thread():
 
+    attempt = 0
     while True:
         
         stage, url = q.get()
         try:
             response = requests.get(url, timeout=20, headers=get_headers())
         except Exception as e:
+            if(attempt == 0):
+                continue
             print("Please try again. Error has occured \n", e)
             response = None
+            attempt = 1
+            incomplete_df = True
 
         if(response is not None and response.status_code == requests.codes.ok):
 
@@ -86,11 +91,14 @@ def scrape_data(x, y, type, indexName=None, url=None, stockSymbol=None, symbolCo
     q.join()
 
     result = pd.DataFrame()
-    for stage in range(total_stages):
-        result = pd.concat([result, interm_dfs[stage]])
 
-    result.index = pd.to_datetime(result.index)
-    result.sort_index(inplace=True)
+    if(incomplete_df == False):
+        for stage in range(total_stages):
+            result = pd.concat([result, interm_dfs[stage]])
+
+        result.index = pd.to_datetime(result.index)
+        result.sort_index(inplace=True)
+
     return result
 
 
