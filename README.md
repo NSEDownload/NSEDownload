@@ -16,6 +16,7 @@ pip3 install NSEDownload/dist/NSEDownload-3.1.6.1.tar.gz
 ```python
 from NSEDownload import stocks
 df = stocks.get_data(stockSymbol = 'RELIANCE', start_date = '15-9-2021', end_date = '1-10-2021')
+df = stocks.get_adjusted_data('RELIANCE', dfs[i])
 ```
 Output as a pandas dataframe :
 

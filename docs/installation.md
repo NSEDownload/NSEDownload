@@ -1,3 +1,9 @@
+---
+layout: default
+title: Home
+nav_order: 3
+---
+
 # **Installation**
 {: .no_toc }
 <details open markdown="block">
@@ -26,7 +32,7 @@ All the additional libraries required are installed with the package. You don't 
 * fuzzywuzzy
 ```
 
-## Using Terminal ##
+## **Using Terminal** ##
 {:toc}
 
 ```
@@ -34,7 +40,7 @@ git clone -b '3.1' https://github.com/NSEDownload/NSEDownload
 pip3 install NSEDownload/dist/NSEDownload-3.1.6.1.tar.gz 
 ```
 
-## On Colab ##
+## **On Colab** ##
 {:toc}
 
 ```
