@@ -15,7 +15,7 @@ incomplete_df = False
 
 def worker_thread():
 
-    attempt = 0
+    # attempt = 0
     while True:
         
         stage, url = q.get()
@@ -23,10 +23,9 @@ def worker_thread():
             response = requests.get(url, timeout=20, headers=get_headers())
         except Exception as e:
 
-            if(attempt == 0):
-                attempt = 1
-                continue
-
+            # if(attempt == 0):
+            #     attempt = 1
+            #     continue
             print("Please try again. Error has occured \n", e)
             response = None
             global incomplete_df
