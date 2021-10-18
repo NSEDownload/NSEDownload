@@ -4,7 +4,7 @@ import numpy as np
 pd.options.mode.chained_assignment = None  # default='warn'
 
 
-def calcualte_returns(data, name=None):
+def calculate_returns(data, name = None, make_csv = False):
 
     if(name != None):
         print("Calculating returns for " + name)
@@ -24,8 +24,8 @@ def calcualte_returns(data, name=None):
     df["Date"] = pd.to_datetime(df["Date"]).dt.date
     df = df.rename({'Close Price': 'Close'}, axis='columns')
 
-    endActual = (df.iloc[0]["Date"]).strftime('%Y-%m-%d')
-    startActual = (df.iloc[-1]["Date"]).strftime('%Y-%m-%d')
+    startActual  = (df.iloc[0]["Date"]).strftime('%Y-%m-%d')
+    endActual = (df.iloc[-1]["Date"]).strftime('%Y-%m-%d')
 
     df = df.drop_duplicates()
     try:
@@ -93,11 +93,12 @@ def calcualte_returns(data, name=None):
     # df["5 Year Returns"] = ( df["Close Price"]/df["Close Price"].shift(1826) ) -1
 
     ar = (np.where(df["1 Day Returns"] == 0))
-    df.drop(df.index[ar], inplace=True)
+    df.drop(df.index[ar], inplace = True)
 
     df["Date"] = pd.to_datetime(df["Date"]).dt.date
     df.index = df["Date"]
-    df.drop(columns="Date", inplace=True)
+    df.drop(columns="Date", inplace = True)
+
     try:
         df = df[["Close", "Symbol", "1 Day Returns", "1 Week Returns", "2 Week Returns", "1 Month Returns",
                  "2 Month Returns", "3 Month Returns", "6 Month Returns", "9 Month Returns", "1 Year Returns", "2 Year Returns"]]
@@ -107,9 +108,15 @@ def calcualte_returns(data, name=None):
 
     df = df.iloc[::-1]
 
-    if(name == None):
-        df.to_excel("data.xls")
-        print("File created : data.xls")
-    else:
-        df.to_excel("{}.xls".format(name))
-        print("File created : {}.xls".format(name))
+    if(make_csv == True):
+
+        if(name == None):
+            df.to_excel("data.csv")
+            print("File created : data.csv")
+        else:
+            df.to_excel("{}.csv".format(name))
+            print("File created : {}.csv".format(name))
+
+        return
+
+    return df

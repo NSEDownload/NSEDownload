@@ -6,10 +6,10 @@ from NSEDownload.scraper import scrape_data
 
 def get_data(indexName, full_data=None, start_date=None, end_date=None, indextype=None):
 
-    url, Array, Values = url = get_historical_index_url(), arr, values
+    url, Array, Values = get_historical_index_url(), arr, values
 
     if(indextype == "TRI" or indextype == "tri" or indextype == "T" or indextype == 't'):
-        url, Values, Array = get_TRI_index_url(), valuesTRI, arrTRI
+        url, Array, Values  = get_TRI_index_url(), arrTRI, valuesTRI
 
     check_name(Array, Values, indexName)
 
