@@ -20,7 +20,7 @@ You can specify the date range either using start and end date or using the full
 ### **Using start and end date** 
 Here the date is specified in 'dd-mm-yyyy' format
 
-```python
+```
 from NSEDownload import indices
 df = indices.get_data(indexName = "NIFTY Shariah 25",start_date="09-01-2017",end_date="14-08-2019")
 ```
@@ -44,7 +44,7 @@ Date
 ```
 ### **Using Full Data**
 Full data gives data from the inception of stock to today.
-```python
+```
 from NSEDownload import indices
 df = indices.get_data(indexName = "NIFTY 100", full_data=True)
 ```
@@ -72,7 +72,7 @@ Date
 {:toc}
 Additional 'indextype' has to be set to 'TRI' to use this. The date range can be specified same as above.
 
-```python
+```
 from NSEDownload import indices
 df = indices.get_data(indexName = "NIFTY 100",full_data=True, indextype="TRI")
 ```

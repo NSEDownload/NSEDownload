@@ -20,7 +20,7 @@ You can specify the date range either using start and end date or using the full
 ### **Using start and end date** 
 Here the date is specified in 'dd-mm-yyyy' format
 
-```python
+```
 from NSEDownload import stocks
 AsianP = stocks.get_data(stockSymbol = 'ASIANPAINT', start_date = '1-1-2015', end_date = '1-1-2022')
 ```
@@ -44,7 +44,7 @@ Date                           ...
 ```
 ### **Using Full Data**
 Full data gives data from the inception of stock to today.
-```python
+```
 from NSEDownload import stocks
 AsianP_full= stocks.get_data(stockSymbol = 'ASIANPAINT', full_data=True)
 ```
@@ -74,7 +74,7 @@ Date                           ...
 
 This takes care of splits and bonus events after 2010. All events before that are not adjusted.
 
-```python
+```
 from NSEDownload import stocks
 df = stocks.get_data(stockSymbol = 'RELIANCE', start_date = '1-1-2015', end_date = '1-1-2022')
 df = stocks.get_adjusted_data('RELIANCE', df)
