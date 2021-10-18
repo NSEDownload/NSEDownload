@@ -21,9 +21,11 @@ def worker_thread():
         try:
             response = requests.get(url, timeout=20, headers=get_headers())
         except requests.exceptions.RequestException as e:
-            raise SystemExit(e)
+            print("Please try again. Error has occured", e)
+            q.task_done()
         except Exception as e:
-            raise SystemExit(e)
+            print("Please try again. Error has occured", e)
+            q.task_done()
 
         if(response.status_code == requests.codes.ok):
 
@@ -58,7 +60,7 @@ def scrape_data(x, y, type, indexName=None, url=None, stockSymbol=None, symbolCo
     global interm_dfs
     interm_dfs = [pd.DataFrame()] * total_stages
 
-    threading.Thread(target=worker_thread).start()
+    threading.Thread(target=worker_thread, daemon=True).start()
 
     for stage in range(total_stages):
 
