@@ -1,3 +1,10 @@
+---
+layout: default
+title: Indices
+parent: Usage
+nav_order: 2
+---
+
 # **Indices**
 {: .no_toc }
 

@@ -1,3 +1,10 @@
+---
+layout: default
+title: Stocks
+parent: Usage
+nav_order: 2
+---
+
 # **Stocks**
 {: .no_toc }
 
