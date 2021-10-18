@@ -61,8 +61,9 @@ def worker_thread():
 def scrape_data(x, y, type, indexName=None, url=None, stockSymbol=None, symbolCount=None):
 
     stage, total_stages = 0, math.ceil((y-x).days/365)
-    global interm_dfs
+    global interm_dfs, incomplete_df
     interm_dfs = [pd.DataFrame()] * total_stages
+    incomplete_df = False
 
     threading.Thread(target=worker_thread, daemon=True).start()
 
@@ -100,6 +101,9 @@ def scrape_data(x, y, type, indexName=None, url=None, stockSymbol=None, symbolCo
 
         result.index = pd.to_datetime(result.index)
         result.sort_index(inplace=True)
+
+    if(incomplete_df == True):
+        print("Returning empty df as complete data not received.")
 
     return result
 
