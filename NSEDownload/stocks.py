@@ -3,6 +3,7 @@ from NSEDownload.check import check_name
 from NSEDownload.static_data import stocks_values
 import pandas as pd
 import datetime
+
 pd.options.mode.chained_assignment = None
 
 
@@ -60,7 +61,11 @@ def get_adjusted_data(stockSymbol, df):
             same_data = df.loc[df.index >= date]
 
             for j in arr:
-                changed_data.loc[:, j] = changed_data.loc[:, j]/ratio[i]
+
+                try:
+                    changed_data.loc[:, j] = changed_data.loc[:, j]/ratio[i]
+                except TypeError:
+                    pass
 
             df = pd.concat([changed_data, same_data])
 
