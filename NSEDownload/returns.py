@@ -103,12 +103,12 @@ def calculate_returns(data, include_date=False, include_price=False, make_csv=Fa
     df.index = df["Date"]
     df.drop(columns="Date", inplace=True)
 
-    try:
-        df = df[["Close", "Symbol", "1 Day Returns", "1 Week Returns", "2 Week Returns", "1 Month Returns",
-                 "2 Month Returns", "3 Month Returns", "6 Month Returns", "9 Month Returns", "1 Year Returns", "2 Year Returns"]]
-    except KeyError:
-        df = df[["Close", "1 Day Returns", "1 Week Returns", "2 Week Returns", "1 Month Returns", "2 Month Returns",
-                 "3 Month Returns", "6 Month Returns", "9 Month Returns", "1 Year Returns", "2 Year Returns"]]
+    # try:
+    #     df = df[["Close", "Symbol", "1 Day Returns", "1 Week Returns", "2 Week Returns", "1 Month Returns",
+    #              "2 Month Returns", "3 Month Returns", "6 Month Returns", "9 Month Returns", "1 Year Returns", "2 Year Returns"]]
+    # except KeyError:
+    #     df = df[["Close", "1 Day Returns", "1 Week Returns", "2 Week Returns", "1 Month Returns", "2 Month Returns",
+    #              "3 Month Returns", "6 Month Returns", "9 Month Returns", "1 Year Returns", "2 Year Returns"]]
 
     df = df.iloc[::-1]
     df.fillna('-', inplace=True)
