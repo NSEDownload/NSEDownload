@@ -7,17 +7,25 @@ For a detailed usage : <a href="https://nsedownload.github.io/NSEDownload/">Docu
 ## **Installation** ##
 
 ```python
-git clone -b '4.1' https://github.com/NSEDownload/NSEDownload
-pip3 install NSEDownload/dist/NSEDownload-4.0.tar.gz 
+git clone -b '4.0' https://github.com/NSEDownload/NSEDownload
+pip3 install NSEDownload/dist/NSEDownload-4.1.tar.gz 
 ```
 
 ## **Usage** ##
 
 ```python
 from NSEDownload import stocks
+
+# Gets data without adjustment for events
 df = stocks.get_data(stockSymbol = 'RELIANCE', start_date = '15-9-2021', end_date = '1-10-2021')
+
+# Adjusts the given stock data for events
 df = stocks.get_adjusted_data('RELIANCE', df)
+
+# Do above steps in one line to get adjusted data
+df = stocks.get_adjusted_stock(stockSymbol = 'RELIANCE', start_date = '15-9-2021', end_date = '1-10-2021')
 ```
+
 Output as a pandas dataframe :
 
 | Date                | Symbol   | Series   |   Prev Close |   Open Price |   High Price |   Low Price |   Last Price |   Close Price |   Average Price |   Total Traded Quantity |    Turnover |   No. of Trades |   Deliverable Qty |   % Dly Qt to Traded Qty |
