@@ -109,7 +109,7 @@ def get_adjusted_data(stockSymbol, df):
 
     |   Before Adjustment 	|   After Adjustment 	| 
     | :--------:	        |   :--------:	        |
-    |<img src = "../Pre_adjustment.png">            |<img src = "../Post_adjustment.png">    |
+    |<img src = "Pre_adjustment.png">            |<img src = "Post_adjustment.png">    |
 
 
     """
