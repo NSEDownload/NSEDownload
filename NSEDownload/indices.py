@@ -5,7 +5,7 @@ from NSEDownload.scraper import scrape_data
 
 
 def get_data(indexName, full_data=None, start_date=None, end_date=None, indextype=None, check_index=True):
-    """[summary]
+    """[To get data for indices using dates or full_data ]
 
     Args:
         indexName ([str])           : [Name of index to scrape]
@@ -41,16 +41,8 @@ def get_data(indexName, full_data=None, start_date=None, end_date=None, indextyp
         if(start_date is None or end_date is None):
             raise ValueError("Provide start and end date. ")
 
-        try:
-            x = datetime.datetime.strptime(start_date, "%d-%m-%Y")
-            y = datetime.datetime.strptime(end_date, "%d-%m-%Y")
-
-        except ValueError:
-            try:
-                x = datetime.datetime.strptime(start_date, "%Y-%m-%d")
-                y = datetime.datetime.strptime(end_date, "%Y-%m-%d")
-            except ValueError:
-                raise ValueError("Dates should be in YYYY-MM-DD or DD-MM-YYYY format")
+        x = parse_date(start_date)
+        y = parse_date(end_date)
 
         if(x > y):
             raise ValueError("Starting date is greater than end date.")
@@ -62,3 +54,14 @@ def get_data(indexName, full_data=None, start_date=None, end_date=None, indextyp
 
     result = scrape_data(x, y, 'index', indexName=indexName, url=url)
     return result
+
+
+def parse_date(text):
+
+    for fmt in ('%Y-%m-%d', '%d-%m-%Y'):
+        try:
+            return datetime.datetime.strptime(text, fmt)
+        except ValueError:
+            pass
+
+    raise ValueError('Dates should be in YYYY-MM-DD or DD-MM-YYYY format')
