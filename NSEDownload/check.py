@@ -2,16 +2,15 @@ from fuzzywuzzy import fuzz
 
 
 def check_name(arr, values, name):
-    """[Checking for proper Name and suggesting closest alternative.]
+    """Checking for proper Name and suggesting closest alternative.
 
     Args:
-        arr ([list]): [List of stocks or indices]
-        values ([list]): [List of stocks or indices]
-        name ([str]): [Name of stock or index]
+        arr (list): List of stocks or indices
+        values (list): List of stocks or indices
+        name (str): Name of stock or index
 
     Raises:
-        ValueError: [If the name is not in the list then raises error
-                    and suggests alternative]
+        ValueError: If the name is not in the list then raises error and suggests alternative
     """
     flag = 0
     for i in range(len(arr)):

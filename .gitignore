@@ -2,3 +2,10 @@ NSEDownload/tests.py
 .vscode/settings.json
 pylint.ini
 .vscode/.prettierrc
+NSEDownload/__pycache__/__init__.cpython-36.pyc
+NSEDownload/__pycache__/check.cpython-36.pyc
+NSEDownload/__pycache__/indices.cpython-36.pyc
+NSEDownload/__pycache__/returns.cpython-36.pyc
+NSEDownload/__pycache__/scraper.cpython-36.pyc
+NSEDownload/__pycache__/static_data.cpython-36.pyc
+NSEDownload/__pycache__/stocks.cpython-36.pyc

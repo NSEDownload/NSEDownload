@@ -7,7 +7,7 @@ import math
 import threading
 import queue
 import pandas as pd
-from NSEDownload.static_data import get_headers, get_adjusted_headers, get_symbol_mapping_url, get_company_events_url, get_symbol_count_url
+# from NSEDownload.static_data import get_headers, get_adjusted_headers, get_symbol_mapping_url, get_company_events_url, get_symbol_count_url
 
 q = queue.Queue()
 interm_dfs = []
@@ -16,7 +16,7 @@ incomplete_df = False
 
 def worker_thread():
     """
-    [Worker thread function where one request is made, response is parsed and returned]
+        This is the function call made by each thread. A get request is made for given start and end date, response is parsed and dataframe is returned
     """
     # attempt = 0
     while True:
@@ -62,23 +62,19 @@ def worker_thread():
 
 
 def scrape_data(x, y, type, indexName=None, url=None, stockSymbol=None, symbolCount=None):
-    """[Called by stocks and indices to scrape data. Creates threads for different requests,
-        parses data, combines them and returns dataframe]
+    """Called by stocks and indices to scrape data. Creates threads for different requests, parses data, combines them and returns dataframe
 
     Args:
-        x ([datetime])               : [start date]
-        y ([datetime])               : [end date]
-        type ([string])              : [Either 'stock' or 'index']
-        indexName ([type], optional) : [If type index then this gives name of index]
-                                        Defaults to None.
-        url ([str], optional)        : [URL to scrape from]
-                                        Defaults to None.
-        stockSymbol ([str], optional): [If type stock then this gives stock symbol]                                       Defaults to None.
-        symbolCount ([str], optional): [Intermediate variable needed for scraping]
-                                        Defaults to None.
+        x (datetime): start date
+        y (datetime): end date
+        type (str): Either 'stock' or 'index'
+        indexName (str, optional): If type index then this gives name of index. Defaults to None.
+        url (str, optional): URL to scrape from. Defaults to None.
+        stockSymbol (str, optional): If type stock then this gives stock symbol. Defaults to None.
+        symbolCount (str, optional): Intermediate variable needed for scraping. Defaults to None.
 
     Returns:
-        [Pandas DataFrame]: [df containing data for stocksymbol for provided date range]
+        Pandas DataFrame: df containing data for stocksymbol for provided date range
     """
     
     stage, total_stages = 0, math.ceil((y-x).days/365)
@@ -130,14 +126,14 @@ def scrape_data(x, y, type, indexName=None, url=None, stockSymbol=None, symbolCo
 
 
 def scrape_bonus_splits(stockSymbol, event_type):
-    """[Scrapes for bonuses and splits]
+    """Scrapes for bonuses and splits
 
     Args:
-        stockSymbol ([string]): [Stock Symbol]
-        event_type ([string]): [Type of Event]
+        stockSymbol (str): Stock Symbol
+        event_type (str): Type of Event
 
     Returns:
-        [list]: [Returns list of dates of event and ratio of original and new price]
+        list: Returns list of dates of event and ratio of original and new price
     """
     dates, ratio = [], []
 
@@ -180,16 +176,16 @@ def scrape_bonus_splits(stockSymbol, event_type):
 
 
 def scrape_symbolCount(stockSymbol):
-    """[Scraping intermediate variable symbol Count]
+    """Scraping intermediate variable symbol Count
 
     Args:
-        stockSymbol ([str]): [Stock Symbol]
+        stockSymbol (str): Stock Symbol
 
     Raises:
-        SystemExit: [Exit on any exception of request]
+        SystemExit: Exit on any exception of request
 
     Returns:
-        [str]: [Symbol Count]
+        str: Symbol Count
     """
     try:
         response = requests.post(
