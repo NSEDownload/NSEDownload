@@ -1,6 +1,6 @@
-# from NSEDownload.scraper import scrape_data, scrape_bonus_splits, scrape_symbolCount
-# from NSEDownload.check import check_name
-# from NSEDownload.static_data import stocks_values
+from NSEDownload.scraper import scrape_data, scrape_bonus_splits, scrape_symbolCount
+from NSEDownload.check import check_name
+from NSEDownload.static_data import stocks_values
 import pandas as pd
 import datetime
 

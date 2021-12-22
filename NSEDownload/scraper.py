@@ -7,7 +7,7 @@ import math
 import threading
 import queue
 import pandas as pd
-# from NSEDownload.static_data import get_headers, get_adjusted_headers, get_symbol_mapping_url, get_company_events_url, get_symbol_count_url
+from NSEDownload.static_data import get_headers, get_adjusted_headers, get_symbol_mapping_url, get_company_events_url, get_symbol_count_url
 
 q = queue.Queue()
 interm_dfs = []
