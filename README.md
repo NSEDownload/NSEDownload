@@ -7,7 +7,7 @@ For a detailed usage : <a href="https://nsedownload.github.io/NSEDownload/">Docu
 ## **Installation** ##
 
 ```python
-git clone -b '4.0' https://github.com/NSEDownload/NSEDownload
+git clone -b '4.1' https://github.com/NSEDownload/NSEDownload
 pip3 install NSEDownload/dist/NSEDownload-4.0.tar.gz 
 ```
 

@@ -94,7 +94,7 @@ def calculate_returns(data, include_date=False, include_price=False, make_csv=Fa
         if(include_price is True):
             df[time_periods[i]+' Price'] = df["Close"].shift(shift_by[i])
 
-        df[time_periods[i]+' Returns'] = round((df["Close"]/df["Close"].shift(shift_by[1])) - 1, 4)
+        df[time_periods[i]+' Returns'] = round((df["Close"]/df["Close"].shift(shift_by[i])) - 1, 4)
 
     ar = (np.where(df["1 Day Returns"] == 0))
     df.drop(df.index[ar], inplace=True)
