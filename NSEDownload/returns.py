@@ -5,8 +5,19 @@ pd.options.mode.chained_assignment = None  # default='warn'
 
 
 def calculate_returns(data, make_csv=False, name=None):
+    """[Calculated trailing returns over different time periods
+        and returns df or makes csv file]
 
-    if(name != None):
+    Args:
+        data ([Pandas DataFrame]): [Stock or index data]
+        make_csv (bool, optional): [To make a csv file of returns]. Defaults to False.
+        name ([type], optional)  : [Name of csv file]. Defaults to None.
+
+    Returns:
+        [Pandas DataFrame]: [dataframe containing returns ]
+    """
+    
+    if(name is not None):
         print("Calculating returns for " + name)
     else:
         print("Calculating returns")
@@ -31,7 +42,7 @@ def calculate_returns(data, make_csv=False, name=None):
     try:
         df = df.pivot(index="Date", columns="Close")
     except KeyError as e:
-        print("Check data provided and index type")
+        print("Check data provided and index type", e)
         return
 
     start_date = df.index.min() - pd.DateOffset(day=1)
@@ -102,17 +113,17 @@ def calculate_returns(data, make_csv=False, name=None):
     try:
         df = df[["Close", "Symbol", "1 Day Returns", "1 Week Returns", "2 Week Returns", "1 Month Returns",
                  "2 Month Returns", "3 Month Returns", "6 Month Returns", "9 Month Returns", "1 Year Returns", "2 Year Returns"]]
-    except KeyError as e:
+    except KeyError:
         df = df[["Close", "1 Day Returns", "1 Week Returns", "2 Week Returns", "1 Month Returns", "2 Month Returns",
                  "3 Month Returns", "6 Month Returns", "9 Month Returns", "1 Year Returns", "2 Year Returns"]]
 
     df = df.iloc[::-1]
     df.fillna('-', inplace=True)
 
-    if(make_csv == True):
+    if(make_csv is True):
 
-        if(name == None):
-            df.to_csv("data.csv",float_format='%.2f')
+        if(name is None):
+            df.to_csv("data.csv", float_format='%.2f')
             print("File created : data.csv")
         else:
             df.to_csv("{}.csv".format(name), float_format='%.2f')

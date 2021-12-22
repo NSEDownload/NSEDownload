@@ -1,21 +1,29 @@
 from fuzzywuzzy import fuzz
 
-# Checking for proper IndexName and suggesting closest alternative.
 
+def check_name(arr, values, name):
+    """[Checking for proper Name and suggesting closest alternative.]
 
-def check_name(arr, values, indexName):
+    Args:
+        arr ([list]): [List of stocks or indices]
+        values ([list]): [List of stocks or indices]
+        name ([str]): [Name of stock or index]
 
+    Raises:
+        ValueError: [If the name is not in the list then raises error
+                    and suggests alternative]
+    """
     flag = 0
     for i in range(len(arr)):
-        if(arr[i] == indexName or values[i] == indexName):
-            indexName = arr[i]
-            print(indexName)
+        if(arr[i] == name or values[i] == name):
+            name = arr[i]
+            print(name)
             flag = 1
 
     maxi = 0
     maxVal = values[0]
     for compare in values:
-        str1 = indexName
+        str1 = name
         str2 = compare
 
         Ratio = fuzz.ratio(str1.lower(), str2.lower())
