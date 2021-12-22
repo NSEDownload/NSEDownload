@@ -101,14 +101,11 @@ def calculate_returns(data, include_date=False, include_price=False, make_csv=Fa
 
     df["Date"] = pd.to_datetime(df["Date"]).dt.date
     df.index = df["Date"]
-    df.drop(columns="Date", inplace=True)
 
-    # try:
-    #     df = df[["Close", "Symbol", "1 Day Returns", "1 Week Returns", "2 Week Returns", "1 Month Returns",
-    #              "2 Month Returns", "3 Month Returns", "6 Month Returns", "9 Month Returns", "1 Year Returns", "2 Year Returns"]]
-    # except KeyError:
-    #     df = df[["Close", "1 Day Returns", "1 Week Returns", "2 Week Returns", "1 Month Returns", "2 Month Returns",
-    #              "3 Month Returns", "6 Month Returns", "9 Month Returns", "1 Year Returns", "2 Year Returns"]]
+    try:
+        df.drop(columns=["Date", 'Open', 'High', 'Low', 'Shares Traded', 'Turnover (Rs. Cr)'], inplace=True)
+    except KeyError:
+        df.drop(columns=['Date', 'Symbol', 'Series', 'Open Price', 'High Price', 'Low Price', 'Last Price', 'Average Price', 'Total Traded Quantity', 'Turnover', 'No. of Trades', 'Deliverable Qty', '% Dly Qt to Traded Qty'], inplace=True)
 
     df = df.iloc[::-1]
     df.fillna('-', inplace=True)
