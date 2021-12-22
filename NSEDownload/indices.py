@@ -11,9 +11,9 @@ def get_data(indexName, full_data=None, start_date=None, end_date=None, indextyp
         indexName ([str])           : [Name of index to scrape]
         full_data ([bool], optional): [If set to True, then complete data is scrape]
                                         Defaults to None.
-        start_date ([str], optional): [start date of date range]
+        start_date ([str], optional): [start date of date range in YYYY-MM-DD or DD-MM-YYYY format]
                                         Defaults to None.
-        end_date ([str], optional)  : [end date of date range]
+        end_date ([str], optional)  : [end date of date range in YYYY-MM-DD or DD-MM-YYYY format]
                                         Defaults to None.
         indextype ([str], optional) : ['historical' or 'TRI']
                                         Defaults to None.
@@ -22,6 +22,7 @@ def get_data(indexName, full_data=None, start_date=None, end_date=None, indextyp
 
     Raises:
         ValueError: [If no dates are provided]
+        ValueError: [Incorrect format of dates]
         ValueError: [If start date > end date]
 
     Returns:
@@ -35,19 +36,29 @@ def get_data(indexName, full_data=None, start_date=None, end_date=None, indextyp
     if(check_index is True):
         check_name(Array, Values, indexName)
 
-    if(full_data is None or full_data == "No"):
-        x = datetime.datetime.strptime(start_date, "%d-%m-%Y")
-        y = datetime.datetime.strptime(end_date, "%d-%m-%Y")
+    if(full_data is None or full_data is False):
+
+        if(start_date is None or end_date is None):
+            raise ValueError("Provide start and end date. ")
+
+        try:
+            x = datetime.datetime.strptime(start_date, "%d-%m-%Y")
+            y = datetime.datetime.strptime(end_date, "%d-%m-%Y")
+
+        except ValueError:
+            try:
+                x = datetime.datetime.strptime(start_date, "%Y-%m-%d")
+                y = datetime.datetime.strptime(end_date, "%Y-%m-%d")
+            except ValueError:
+                raise ValueError("Dates should be in YYYY-MM-DD or DD-MM-YYYY format")
 
         if(x > y):
             raise ValueError("Starting date is greater than end date.")
 
-    elif(full_data == "Yes" or full_data == "yes" or full_data is True or full_data == "Y"):
+    else:
+        print("Downloading Full data for", indexName)
         x = datetime.datetime.strptime('1-1-1990', "%d-%m-%Y")
         y = datetime.datetime.today()
-
-        if(x > y):
-            raise ValueError("Starting date is greater than end date.")
 
     result = scrape_data(x, y, 'index', indexName=indexName, url=url)
     return result

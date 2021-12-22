@@ -14,13 +14,14 @@ def get_data(stockSymbol, full_data=False, start_date=None, end_date=None, check
         stockSymbol ([string])          : [Scrip or Stock symbol in uppercase only]
         full_data ([Bool], optional)    : [Parameter to get complete data since inception]
                                             Defaults to None.
-        start_date ([string], optional) : [start date of date range]
+        start_date ([string], optional) : [start date of date range in YYYY-MM-DD or DD-MM-YYYY format]
                                             Defaults to None
-        end_date ([string], optional)   : [end date of date range]
+        end_date ([string], optional)   : [end date of date range in YYYY-MM-DD or DD-MM-YYYY format]
                                             Defaults to None
         check_stockSymbol([bool], optional): [To check if symbol provided is correct]
     Raises:
         ValueError: [If no dates are provided]
+        ValueError: [Incorrect format of dates]
         ValueError: [If start date > end date]
 
     Returns:
@@ -34,19 +35,29 @@ def get_data(stockSymbol, full_data=False, start_date=None, end_date=None, check
     symbolCount = scrape_symbolCount(stockSymbol)
 
     if(full_data is True):
+
+        print("Downloading Full data for", stockSymbol)
         x = datetime.datetime.strptime('1-1-1992', "%d-%m-%Y")
         y = datetime.datetime.today()
 
     else:
 
         if(start_date is None or end_date is None):
-            raise ValueError("Provide start and end date. ")
+            raise ValueError("Provide start and end date.")
 
-        x = datetime.datetime.strptime(start_date, "%d-%m-%Y")
-        y = datetime.datetime.strptime(end_date, "%d-%m-%Y")
+        try:
+            x = datetime.datetime.strptime(start_date, "%d-%m-%Y")
+            y = datetime.datetime.strptime(end_date, "%d-%m-%Y")
 
-    if(x > y):
-        raise ValueError("Starting date is greater than end date.")
+        except ValueError:
+            try:
+                x = datetime.datetime.strptime(start_date, "%Y-%m-%d")
+                y = datetime.datetime.strptime(end_date, "%Y-%m-%d")
+            except ValueError:
+                raise ValueError("Dates should be in YYYY-MM-DD or DD-MM-YYYY format")
+
+        if(x > y):
+            raise ValueError("Starting date is greater than end date.")
 
     result = scrape_data(
         x, y, 'stock', stockSymbol=stockSymbol, symbolCount=symbolCount)
