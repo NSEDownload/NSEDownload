@@ -114,3 +114,11 @@ def get_adjusted_data(stockSymbol, df):
             df = pd.concat([changed_data, same_data])
 
     return df
+
+
+def get_adjusted_stock(stockSymbol, full_data=False, start_date=None, end_date=None, check_stockSymbol=True):
+
+    df = get_data(stockSymbol, full_data, start_date, end_date, check_stockSymbol)
+    df = get_adjusted_data(stockSymbol, df)
+
+    return df
