@@ -58,3 +58,8 @@ Output
 
 ## **Contributing** ##
 If you find any bugs or issue, please raise an issue for the same. You can also contribute by suggesting new features.
+
+## **Buy me a coffee** ##
+If my work has helped you in anyway, you can buy me a coffee.  
+<br>
+<a href="https://www.buymeacoffee.com/jinit" target="_blank"><img src="https://www.buymeacoffee.com/assets/img/custom_images/orange_img.png" alt="Buy Me A Coffee" style="height: 41px !important;width: 174px !important;box-shadow: 0px 3px 2px 0px rgba(190, 190, 190, 0.5) !important;-webkit-box-shadow: 0px 3px 2px 0px rgba(190, 190, 190, 0.5) !important;" ></a>
