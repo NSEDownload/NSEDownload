@@ -53,7 +53,6 @@ def get_data(stockSymbol, full_data=False, start_date=None, end_date=None, check
 
     """
 
-
     if(check_stockSymbol is True):
         check_name(stocks_values, stocks_values, stockSymbol)
 
@@ -97,7 +96,7 @@ def get_adjusted_data(stockSymbol, df):
     ```
     from NSEDownload import stocks
     df = stocks.get_data(stockSymbol = 'RELIANCE', start_date = '15-9-2015', end_date = '1-10-2021')
-    df = stocks.get_adjusted_data('RELIANCE', df)    
+    df = stocks.get_adjusted_data('RELIANCE', df)
     ```
     Ouput
     ```
@@ -107,7 +106,7 @@ def get_adjusted_data(stockSymbol, df):
 
     Adjusts can be easily check by plotting the closing price :
 
-    |   Before Adjustment 	|   After Adjustment 	| 
+    |   Before Adjustment 	|   After Adjustment 	|
     | :--------:	        |   :--------:	        |
     |<img src = "../Pre_adjustment.png">            |<img src = "../Post_adjustment.png">    |
 
@@ -177,8 +176,8 @@ def get_adjusted_stock(stockSymbol, full_data=False, start_date=None, end_date=N
     ```
     """
 
-
-    df = get_data(stockSymbol, full_data, start_date, end_date, check_stockSymbol)
+    df = get_data(stockSymbol, full_data, start_date,
+                  end_date, check_stockSymbol)
     df = get_adjusted_data(stockSymbol, df)
 
     return df
