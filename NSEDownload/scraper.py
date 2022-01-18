@@ -76,7 +76,7 @@ def scrape_data(x, y, type, indexName=None, url=None, stockSymbol=None, symbolCo
     Returns:
         Pandas DataFrame: df containing data for stocksymbol for provided date range
     """
-    
+
     stage, total_stages = 0, math.ceil((y-x).days/365)
     global interm_dfs, incomplete_df
     interm_dfs = [pd.DataFrame()] * total_stages
@@ -188,11 +188,10 @@ def scrape_symbolCount(stockSymbol):
         str: Symbol Count
     """
     try:
-        response = requests.post(
-                                    get_symbol_count_url(),
-                                    data={"symbol": stockSymbol},
-                                    headers=get_headers(), timeout=20
-                                )
+        response = requests.post(get_symbol_count_url(),
+                                 data={"symbol": stockSymbol},
+                                 headers=get_headers(), timeout=20)
+                                 
     except requests.exceptions.RequestException as e:
         raise SystemExit(e)
 
