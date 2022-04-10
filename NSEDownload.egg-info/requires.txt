@@ -1,7 +1,6 @@
 beautifulsoup4
-requests
+fuzzywuzzy
 numpy
 pandas
+requests
 timedelta
-fuzzywuzzy
-python-Levenshtein

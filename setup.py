@@ -2,7 +2,7 @@ import setuptools
 
 setuptools.setup(
     name="NSEDownload",
-    version="4.1",
+    version="4.1.1",
     author="Jinit S",
     description="Download Stocks and Indices Data from NSE",
 
@@ -13,5 +13,5 @@ setuptools.setup(
         "Operating System :: OS Independent",
     ],
     install_requires=['beautifulsoup4', 'requests', 'numpy',
-                      'pandas', 'timedelta', 'fuzzywuzzy', 'python-Levenshtein'],
+                      'pandas', 'timedelta', 'fuzzywuzzy'],
 )

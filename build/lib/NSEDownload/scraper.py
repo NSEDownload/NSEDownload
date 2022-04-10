@@ -154,23 +154,17 @@ def scrape_bonus_splits(stockSymbol, event_type):
     while(date_start != -1):
 
         sub_start = page_content.find('Spl')
-        if(sub_start == -1):
-            sub_start = page_content.find("sub")
-
         if(event_type == "BONUS"):
             sub_start = page_content.find('Bonus')
 
         sub_end = page_content.find(',', sub_start)
 
         num = re.findall('\d+', page_content[sub_start:sub_end])
-        
-        if(len(num)<2):
-            print("Unable to parse given message" + page_content)
+
+        if(event_type == "BONUS"):
+            ratio.append((int(num[0])+int(num[1]))/int(num[1]))
         else:
-            if(event_type == "BONUS"):
-                ratio.append((int(num[0])+int(num[1]))/int(num[1]))
-            else:
-                ratio.append(int(num[0])/int(num[1]))
+            ratio.append(int(num[0])/int(num[1]))
 
         dates.append(page_content[date_start+6:date_end-1])
         page_content = page_content[date_end:-1]
