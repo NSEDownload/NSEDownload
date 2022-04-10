@@ -13,5 +13,5 @@ setuptools.setup(
         "Operating System :: OS Independent",
     ],
     install_requires=['beautifulsoup4', 'requests', 'numpy',
-                      'pandas', 'timedelta', 'fuzzywuzzy', 'python-Levenshtein'],
+                      'pandas', 'timedelta', 'fuzzywuzzy'],
 )

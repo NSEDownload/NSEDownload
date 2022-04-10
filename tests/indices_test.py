@@ -14,7 +14,7 @@ class Test_stocks(unittest.TestCase):
         df_actual = pd.read_csv('tests/indices_data/NIFTY_50.csv',
                                 index_col='Date')
 
-        assert(df.equals(df_actual))
+        assert(df.to_string() == (df_actual).to_string())
 
     def test_get_data_2(self):
 
@@ -25,7 +25,7 @@ class Test_stocks(unittest.TestCase):
         df_actual = pd.read_csv('tests/indices_data/NIFTY_MS_400.csv',
                                 index_col='Date')
 
-        assert(df.equals(df_actual))
+        assert(df.to_string() == (df_actual).to_string())
 
     def test_get_data_3(self):
 
@@ -36,7 +36,7 @@ class Test_stocks(unittest.TestCase):
         df_actual = pd.read_csv('tests/indices_data/NIFTY_S_25.csv',
                                 index_col='Date')
 
-        assert(df.equals(df_actual))
+        assert(df.to_string() == (df_actual).to_string())
 
     def test_get_data_TRI(self):
 
@@ -48,7 +48,7 @@ class Test_stocks(unittest.TestCase):
         df_actual = pd.read_csv('tests/indices_data/NIFTY_L_100_TRI.csv',
                                 index_col='Date')
 
-        assert(df.equals(df_actual))
+        assert(df.to_string() == (df_actual).to_string())
 
 
 if __name__ == '__main__':

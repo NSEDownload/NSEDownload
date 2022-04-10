@@ -11,7 +11,7 @@ class Test_stocks(unittest.TestCase):
                              start_date='15-9-2021', end_date='1-10-2021')
         df_actual = pd.read_csv(
             'tests/stocks_data/RELIANCE.csv', index_col='Date')
-        assert(df.equals(df_actual))
+        assert(df.to_string() == (df_actual).to_string())
 
     def test_get_data_check_name(self):
 
@@ -19,7 +19,7 @@ class Test_stocks(unittest.TestCase):
                              end_date='01-02-2021', check_stockSymbol=False)
         df_actual = pd.read_csv(
             'tests/stocks_data/ANGELONE.csv', index_col='Date')
-        assert(df.equals(df_actual))
+        assert(df.to_string() == (df_actual).to_string())
 
     def test_adjusted_data(self):
 
@@ -27,7 +27,7 @@ class Test_stocks(unittest.TestCase):
             stockSymbol='IOC', start_date='12-3-2018', end_date='12-4-2018')
         df = stocks.get_adjusted_data('IOC', df)
         df_actual = pd.read_csv('tests/stocks_data/IOC.csv', index_col='Date')
-        assert(df.equals(df_actual))
+        assert(df.to_string() == (df_actual).to_string())
 
     def test_get_adjusted_stock(self):
 
@@ -42,8 +42,12 @@ class Test_stocks(unittest.TestCase):
         df = df.round(1)
         df_actual = df_actual.round(1)
 
-        assert(df.equals(df_actual))
+        assert(df.to_string() == (df_actual).to_string())
 
+    def test_scrape_bonus_splits(self):
+
+        val = stocks.scrape_bonus_splits("LAOPALA", "SPLIT")
+        assert(str(val) == "[[5.0], ['24-Sep-2014']]")
 
 if __name__ == '__main__':
     unittest.main()
