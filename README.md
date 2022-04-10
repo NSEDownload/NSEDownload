@@ -8,7 +8,7 @@ For a detailed usage : <a href="https://nsedownload.github.io/NSEDownload/">Docu
 
 ```python
 git clone -b '4.0' https://github.com/NSEDownload/NSEDownload
-pip3 install NSEDownload/dist/NSEDownload-4.1.tar.gz 
+pip3 install NSEDownload/dist/NSEDownload-4.1.1.tar.gz 
 ```
 
 ## **Usage** ##
