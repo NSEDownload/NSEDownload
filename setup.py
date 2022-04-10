@@ -12,6 +12,6 @@ setuptools.setup(
         "License :: OSI Approved :: MIT License",
         "Operating System :: OS Independent",
     ],
-    install_requires=['beautifulsoup4', 'requests', 'numpy',
-                      'pandas', 'timedelta', 'fuzzywuzzy'],
+    install_requires=['beautifulsoup4', 'requests', 
+                      'pandas', 'numpy','timedelta', 'fuzzywuzzy'],
 )
