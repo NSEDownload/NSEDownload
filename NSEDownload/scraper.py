@@ -26,9 +26,7 @@ def worker_thread():
             response = requests.get(url, timeout=20, headers=get_headers())
         except Exception as e:
 
-            # if(attempt == 0):
-            #     attempt = 1
-            #     continue
+
             print("Please try again. Error has occured \n", e)
             response = None
             global incomplete_df
@@ -61,7 +59,7 @@ def worker_thread():
         q.task_done()
 
 
-def scrape_data(x, y, type, indexName=None, url=None, stockSymbol=None, symbolCount=None):
+def scrape_data(x, y, type, indexName=None, url=None, stockSymbol=None, symbolCount=None, series="EQ"):
     """Called by stocks and indices to scrape data. Creates threads for different requests, parses data, combines them and returns dataframe
 
     Args:
@@ -72,6 +70,7 @@ def scrape_data(x, y, type, indexName=None, url=None, stockSymbol=None, symbolCo
         url (str, optional): URL to scrape from. Defaults to None.
         stockSymbol (str, optional): If type stock then this gives stock symbol. Defaults to None.
         symbolCount (str, optional): Intermediate variable needed for scraping. Defaults to None.
+        series(str, optional): By default set to EQ, but can choose any series or All
 
     Returns:
         Pandas DataFrame: df containing data for stocksymbol for provided date range
@@ -96,7 +95,8 @@ def scrape_data(x, y, type, indexName=None, url=None, stockSymbol=None, symbolCo
             end_date = y
 
         if(type == 'stock'):
-            final_url = get_symbol_mapping_url() + '?symbol=' + stockSymbol + '&segmentLink=3&symbolCount' + symbolCount + "&series=EQ&dateRange=+&fromDate=" + \
+            print(series)
+            final_url = get_symbol_mapping_url() + '?symbol=' + stockSymbol + '&segmentLink=3&symbolCount' + symbolCount + "&series=" + series + "&dateRange=+&fromDate=" + \
                 start_date.strftime(
                     "%d-%m-%Y")+"&toDate="+end_date.strftime("%d-%m-%Y")+"&dataType=PRICEVOLUMEDELIVERABLE"
 

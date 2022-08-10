@@ -7,7 +7,7 @@ import datetime
 pd.options.mode.chained_assignment = None
 
 
-def get_data(stockSymbol, full_data=False, start_date=None, end_date=None, check_stockSymbol=True):
+def get_data(stockSymbol, full_data=False, start_date=None, end_date=None, check_stockSymbol=True, series="EQ"):
     """
     Function to get un-adjusted data for stocks
 
@@ -17,6 +17,7 @@ def get_data(stockSymbol, full_data=False, start_date=None, end_date=None, check
         start_date ([type], optional): start date of date range in YYYY-MM-DD or DD-MM-YYYY format. Defaults to None.
         end_date ([type], optional): end date of date range in YYYY-MM-DD or DD-MM-YYYY format. Defaults to None.
         check_stockSymbol (bool, optional): If set to true, the sybmol is checked with internal list of stocks and returns closest stock if not present in list. Defaults to True.
+        series(str, optional): By default set to EQ, but can choose any series or All
 
     Raises:
         ValueError: If no dates are provided/ Incorrect format of dates/ If start date > end date
@@ -77,7 +78,7 @@ def get_data(stockSymbol, full_data=False, start_date=None, end_date=None, check
             raise ValueError("Starting date is greater than end date.")
 
     result = scrape_data(
-        x, y, 'stock', stockSymbol=stockSymbol, symbolCount=symbolCount)
+        x, y, 'stock', stockSymbol=stockSymbol, symbolCount=symbolCount, series=series)
     return result
 
 
