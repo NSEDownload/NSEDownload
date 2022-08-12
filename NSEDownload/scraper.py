@@ -95,7 +95,6 @@ def scrape_data(x, y, type, indexName=None, url=None, stockSymbol=None, symbolCo
             end_date = y
 
         if(type == 'stock'):
-            print(series)
             final_url = get_symbol_mapping_url() + '?symbol=' + stockSymbol + '&segmentLink=3&symbolCount' + symbolCount + "&series=" + series + "&dateRange=+&fromDate=" + \
                 start_date.strftime(
                     "%d-%m-%Y")+"&toDate="+end_date.strftime("%d-%m-%Y")+"&dataType=PRICEVOLUMEDELIVERABLE"
