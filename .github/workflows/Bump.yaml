@@ -1,8 +1,5 @@
 name: Bump Up version
-on:
-  push:
-    branches:
-      - *
+on: push
 
 jobs:
   build:
