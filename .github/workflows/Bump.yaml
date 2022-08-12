@@ -5,7 +5,6 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - uses: stefanzweifel/git-auto-commit-action@v4
       - uses: actions/checkout@v2
       - name: Set up Python 3.8.12
         uses: actions/setup-python@v1
@@ -33,6 +32,6 @@ jobs:
         run: pdoc3 NSEDownload/ --html --force -o docs/
 
       - uses: stefanzweifel/git-auto-commit-action@v4
-       with:
-        commit_message: Bumping Version
-        tagging_message: 'New Bump Version'
+        with:
+          commit_message: Bumping Version
+          tagging_message: 'New Bump Version'
