@@ -14,13 +14,14 @@ def get_data(stockSymbol, full_data=False, start_date=None, end_date=None, check
     Args:
         stockSymbol (str): Scrip or Stock symbol in uppercase only
         full_data (bool, optional): Parameter to get complete data since inception. Defaults to False.
-        start_date ([type], optional): start date of date range in YYYY-MM-DD or DD-MM-YYYY format. Defaults to None.
-        end_date ([type], optional): end date of date range in YYYY-MM-DD or DD-MM-YYYY format. Defaults to None.
+        start_date (datetime, optional): start date of date range in YYYY-MM-DD or DD-MM-YYYY format. Defaults to None.
+        end_date (datetime, optional): end date of date range in YYYY-MM-DD or DD-MM-YYYY format. Defaults to None.
         check_stockSymbol (bool, optional): If set to true, the sybmol is checked with internal list of stocks and returns closest stock if not present in list. Defaults to True.
-        series(str, optional): By default set to EQ, but can choose any series or All
+        series (str, optional): By default set to EQ, but can choose any series or All.
 
     Raises:
-        ValueError: If no dates are provided/ Incorrect format of dates/ If start date > end date
+        ValueError: If no dates are provided/ Incorrect format of dates
+        ValueError: If start date > end date
 
     Returns:
         DataFrame: Data for stocksymbol for given date range

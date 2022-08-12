@@ -122,21 +122,18 @@ def calculate_returns(data, include_date=False, include_price=False, make_csv=Fa
         if(include_price is True):
             df[time_periods[i]+&#39; Price&#39;] = df[&#34;Close&#34;].shift(shift_by[i])
 
-        df[time_periods[i]+&#39; Returns&#39;] = round((df[&#34;Close&#34;]/df[&#34;Close&#34;].shift(shift_by[1])) - 1, 4)
+        df[time_periods[i]+&#39; Returns&#39;] = round((df[&#34;Close&#34;]/df[&#34;Close&#34;].shift(shift_by[i])) - 1, 4)
 
     ar = (np.where(df[&#34;1 Day Returns&#34;] == 0))
     df.drop(df.index[ar], inplace=True)
 
     df[&#34;Date&#34;] = pd.to_datetime(df[&#34;Date&#34;]).dt.date
     df.index = df[&#34;Date&#34;]
-    df.drop(columns=&#34;Date&#34;, inplace=True)
 
     try:
-        df = df[[&#34;Close&#34;, &#34;Symbol&#34;, &#34;1 Day Returns&#34;, &#34;1 Week Returns&#34;, &#34;2 Week Returns&#34;, &#34;1 Month Returns&#34;,
-                 &#34;2 Month Returns&#34;, &#34;3 Month Returns&#34;, &#34;6 Month Returns&#34;, &#34;9 Month Returns&#34;, &#34;1 Year Returns&#34;, &#34;2 Year Returns&#34;]]
+        df.drop(columns=[&#34;Date&#34;, &#39;Open&#39;, &#39;High&#39;, &#39;Low&#39;, &#39;Shares Traded&#39;, &#39;Turnover (Rs. Cr)&#39;], inplace=True)
     except KeyError:
-        df = df[[&#34;Close&#34;, &#34;1 Day Returns&#34;, &#34;1 Week Returns&#34;, &#34;2 Week Returns&#34;, &#34;1 Month Returns&#34;, &#34;2 Month Returns&#34;,
-                 &#34;3 Month Returns&#34;, &#34;6 Month Returns&#34;, &#34;9 Month Returns&#34;, &#34;1 Year Returns&#34;, &#34;2 Year Returns&#34;]]
+        df.drop(columns=[&#39;Date&#39;, &#39;Symbol&#39;, &#39;Series&#39;, &#39;Open Price&#39;, &#39;High Price&#39;, &#39;Low Price&#39;, &#39;Last Price&#39;, &#39;Average Price&#39;, &#39;Total Traded Quantity&#39;, &#39;Turnover&#39;, &#39;No. of Trades&#39;, &#39;Deliverable Qty&#39;, &#39;% Dly Qt to Traded Qty&#39;], inplace=True)
 
     df = df.iloc[::-1]
     df.fillna(&#39;-&#39;, inplace=True)
@@ -191,116 +188,116 @@ stock_returns = returns.calculate_returns(df, make_csv = True, name = &quot;Retu
 <table>
 <thead>
 <tr>
-<th align="center">Date</th>
-<th align="center">Close</th>
-<th align="center">1 Day Returns</th>
-<th align="center">1 Week Returns</th>
-<th align="center">2 Week Returns</th>
-<th align="center">1 Month Returns</th>
-<th align="center">2 Month Returns</th>
-<th align="center">3 Month Returns</th>
-<th align="center">6 Month Returns</th>
+<th style="text-align: center;">Date</th>
+<th style="text-align: center;">Close</th>
+<th style="text-align: center;">1 Day Returns</th>
+<th style="text-align: center;">1 Week Returns</th>
+<th style="text-align: center;">2 Week Returns</th>
+<th style="text-align: center;">1 Month Returns</th>
+<th style="text-align: center;">2 Month Returns</th>
+<th style="text-align: center;">3 Month Returns</th>
+<th style="text-align: center;">6 Month Returns</th>
 </tr>
 </thead>
 <tbody>
 <tr>
-<td align="center">2021-10-14</td>
-<td align="center">18338.5</td>
-<td align="center">0.0097</td>
-<td align="center">0.0308</td>
-<td align="center">0.0409</td>
-<td align="center">0.0552</td>
-<td align="center">0.1095</td>
-<td align="center">0.1516</td>
-<td align="center">0.2577</td>
+<td style="text-align: center;">2021-10-14</td>
+<td style="text-align: center;">18338.5</td>
+<td style="text-align: center;">0.0097</td>
+<td style="text-align: center;">0.0308</td>
+<td style="text-align: center;">0.0409</td>
+<td style="text-align: center;">0.0552</td>
+<td style="text-align: center;">0.1095</td>
+<td style="text-align: center;">0.1516</td>
+<td style="text-align: center;">0.2577</td>
 </tr>
 <tr>
-<td align="center">2021-10-13</td>
-<td align="center">18161.8</td>
-<td align="center">0.0094</td>
-<td align="center">0.0292</td>
-<td align="center">0.0254</td>
-<td align="center">0.0465</td>
-<td align="center">0.0988</td>
-<td align="center">0.1456</td>
-<td align="center">0.2521</td>
+<td style="text-align: center;">2021-10-13</td>
+<td style="text-align: center;">18161.8</td>
+<td style="text-align: center;">0.0094</td>
+<td style="text-align: center;">0.0292</td>
+<td style="text-align: center;">0.0254</td>
+<td style="text-align: center;">0.0465</td>
+<td style="text-align: center;">0.0988</td>
+<td style="text-align: center;">0.1456</td>
+<td style="text-align: center;">0.2521</td>
 </tr>
 <tr>
-<td align="center">2021-10-12</td>
-<td align="center">17992</td>
-<td align="center">0.0026</td>
-<td align="center">0.0095</td>
-<td align="center">0.0137</td>
-<td align="center">0.0359</td>
-<td align="center">0.0995</td>
-<td align="center">0.1378</td>
-<td align="center">0.2404</td>
+<td style="text-align: center;">2021-10-12</td>
+<td style="text-align: center;">17992</td>
+<td style="text-align: center;">0.0026</td>
+<td style="text-align: center;">0.0095</td>
+<td style="text-align: center;">0.0137</td>
+<td style="text-align: center;">0.0359</td>
+<td style="text-align: center;">0.0995</td>
+<td style="text-align: center;">0.1378</td>
+<td style="text-align: center;">0.2404</td>
 </tr>
 <tr>
-<td align="center">2021-10-11</td>
-<td align="center">17946</td>
-<td align="center">0.0028</td>
-<td align="center">0.0144</td>
-<td align="center">0.0051</td>
-<td align="center">0.0332</td>
-<td align="center">0.1022</td>
-<td align="center">0.1436</td>
-<td align="center">0.254</td>
+<td style="text-align: center;">2021-10-11</td>
+<td style="text-align: center;">17946</td>
+<td style="text-align: center;">0.0028</td>
+<td style="text-align: center;">0.0144</td>
+<td style="text-align: center;">0.0051</td>
+<td style="text-align: center;">0.0332</td>
+<td style="text-align: center;">0.1022</td>
+<td style="text-align: center;">0.1436</td>
+<td style="text-align: center;">0.254</td>
 </tr>
 <tr>
-<td align="center">2021-10-08</td>
-<td align="center">17895.2</td>
-<td align="center">0.0059</td>
-<td align="center">0.0207</td>
-<td align="center">0.0024</td>
-<td align="center">0.0312</td>
-<td align="center">0.102</td>
-<td align="center">0.1406</td>
-<td align="center">0.2063</td>
+<td style="text-align: center;">2021-10-08</td>
+<td style="text-align: center;">17895.2</td>
+<td style="text-align: center;">0.0059</td>
+<td style="text-align: center;">0.0207</td>
+<td style="text-align: center;">0.0024</td>
+<td style="text-align: center;">0.0312</td>
+<td style="text-align: center;">0.102</td>
+<td style="text-align: center;">0.1406</td>
+<td style="text-align: center;">0.2063</td>
 </tr>
 <tr>
-<td align="center">2021-10-07</td>
-<td align="center">17790.3</td>
-<td align="center">0.0082</td>
-<td align="center">0.0098</td>
-<td align="center">-0.0018</td>
-<td align="center">0.0247</td>
-<td align="center">0.0956</td>
-<td align="center">0.1311</td>
-<td align="center">0.1961</td>
+<td style="text-align: center;">2021-10-07</td>
+<td style="text-align: center;">17790.3</td>
+<td style="text-align: center;">0.0082</td>
+<td style="text-align: center;">0.0098</td>
+<td style="text-align: center;">-0.0018</td>
+<td style="text-align: center;">0.0247</td>
+<td style="text-align: center;">0.0956</td>
+<td style="text-align: center;">0.1311</td>
+<td style="text-align: center;">0.1961</td>
 </tr>
 <tr>
-<td align="center">2021-10-06</td>
-<td align="center">17646</td>
-<td align="center">-0.0099</td>
-<td align="center">-0.0037</td>
-<td align="center">0.0057</td>
-<td align="center">0.0154</td>
-<td align="center">0.0867</td>
-<td align="center">0.1112</td>
-<td align="center">0.1908</td>
+<td style="text-align: center;">2021-10-06</td>
+<td style="text-align: center;">17646</td>
+<td style="text-align: center;">-0.0099</td>
+<td style="text-align: center;">-0.0037</td>
+<td style="text-align: center;">0.0057</td>
+<td style="text-align: center;">0.0154</td>
+<td style="text-align: center;">0.0867</td>
+<td style="text-align: center;">0.1112</td>
+<td style="text-align: center;">0.1908</td>
 </tr>
 <tr>
-<td align="center">2021-10-05</td>
-<td align="center">17822.3</td>
-<td align="center">0.0074</td>
-<td align="center">0.0042</td>
-<td align="center">0.0148</td>
-<td align="center">0.0288</td>
-<td align="center">0.0938</td>
-<td align="center">0.1267</td>
-<td align="center">0.2138</td>
+<td style="text-align: center;">2021-10-05</td>
+<td style="text-align: center;">17822.3</td>
+<td style="text-align: center;">0.0074</td>
+<td style="text-align: center;">0.0042</td>
+<td style="text-align: center;">0.0148</td>
+<td style="text-align: center;">0.0288</td>
+<td style="text-align: center;">0.0938</td>
+<td style="text-align: center;">0.1267</td>
+<td style="text-align: center;">0.2138</td>
 </tr>
 <tr>
-<td align="center">2021-10-04</td>
-<td align="center">17691.2</td>
-<td align="center">0.0091</td>
-<td align="center">-0.0092</td>
-<td align="center">0.0169</td>
-<td align="center">0.0212</td>
-<td align="center">0.0881</td>
-<td align="center">0.1173</td>
-<td align="center">0.2086</td>
+<td style="text-align: center;">2021-10-04</td>
+<td style="text-align: center;">17691.2</td>
+<td style="text-align: center;">0.0091</td>
+<td style="text-align: center;">-0.0092</td>
+<td style="text-align: center;">0.0169</td>
+<td style="text-align: center;">0.0212</td>
+<td style="text-align: center;">0.0881</td>
+<td style="text-align: center;">0.1173</td>
+<td style="text-align: center;">0.2086</td>
 </tr>
 </tbody>
 </table></div>
@@ -398,21 +395,18 @@ stock_returns = returns.calculate_returns(df, make_csv = True, name = &quot;Retu
         if(include_price is True):
             df[time_periods[i]+&#39; Price&#39;] = df[&#34;Close&#34;].shift(shift_by[i])
 
-        df[time_periods[i]+&#39; Returns&#39;] = round((df[&#34;Close&#34;]/df[&#34;Close&#34;].shift(shift_by[1])) - 1, 4)
+        df[time_periods[i]+&#39; Returns&#39;] = round((df[&#34;Close&#34;]/df[&#34;Close&#34;].shift(shift_by[i])) - 1, 4)
 
     ar = (np.where(df[&#34;1 Day Returns&#34;] == 0))
     df.drop(df.index[ar], inplace=True)
 
     df[&#34;Date&#34;] = pd.to_datetime(df[&#34;Date&#34;]).dt.date
     df.index = df[&#34;Date&#34;]
-    df.drop(columns=&#34;Date&#34;, inplace=True)
 
     try:
-        df = df[[&#34;Close&#34;, &#34;Symbol&#34;, &#34;1 Day Returns&#34;, &#34;1 Week Returns&#34;, &#34;2 Week Returns&#34;, &#34;1 Month Returns&#34;,
-                 &#34;2 Month Returns&#34;, &#34;3 Month Returns&#34;, &#34;6 Month Returns&#34;, &#34;9 Month Returns&#34;, &#34;1 Year Returns&#34;, &#34;2 Year Returns&#34;]]
+        df.drop(columns=[&#34;Date&#34;, &#39;Open&#39;, &#39;High&#39;, &#39;Low&#39;, &#39;Shares Traded&#39;, &#39;Turnover (Rs. Cr)&#39;], inplace=True)
     except KeyError:
-        df = df[[&#34;Close&#34;, &#34;1 Day Returns&#34;, &#34;1 Week Returns&#34;, &#34;2 Week Returns&#34;, &#34;1 Month Returns&#34;, &#34;2 Month Returns&#34;,
-                 &#34;3 Month Returns&#34;, &#34;6 Month Returns&#34;, &#34;9 Month Returns&#34;, &#34;1 Year Returns&#34;, &#34;2 Year Returns&#34;]]
+        df.drop(columns=[&#39;Date&#39;, &#39;Symbol&#39;, &#39;Series&#39;, &#39;Open Price&#39;, &#39;High Price&#39;, &#39;Low Price&#39;, &#39;Last Price&#39;, &#39;Average Price&#39;, &#39;Total Traded Quantity&#39;, &#39;Turnover&#39;, &#39;No. of Trades&#39;, &#39;Deliverable Qty&#39;, &#39;% Dly Qt to Traded Qty&#39;], inplace=True)
 
     df = df.iloc[::-1]
     df.fillna(&#39;-&#39;, inplace=True)

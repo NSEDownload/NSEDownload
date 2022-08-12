@@ -2,7 +2,6 @@ import NSEDownload.stocks as stocks   # The code to test
 import unittest   # The test framework
 import pandas as pd
 
-
 class Test_stocks(unittest.TestCase):
 
     def test_get_data(self):
@@ -25,34 +24,6 @@ class Test_stocks(unittest.TestCase):
         # Testing series
         df = stocks.get_data(stockSymbol='JSWENERGY', start_date='01-01-2021',
                              end_date='01-02-2022', check_stockSymbol=False, series="ALL")
-        print(df)
-
-    # removing tests as future splits and bonuses will affect price
-    # Hence downloaded data won't match after a new split or bonus
-    # def test_adjusted_data(self):
-
-    #     df = stocks.get_data(
-    #         stockSymbol='IOC', start_date='12-3-2018', end_date='12-4-2018')
-    #     df = stocks.get_adjusted_data('IOC', df)
-    #     df_actual = pd.read_csv('tests/stocks_data/IOC.csv', index_col='Date')
-    #     print(df)
-    #     print(df_actual)
-    #     assert(df.to_string() == (df_actual).to_string())
-
-    # def test_get_adjusted_stock(self):
-
-    #     df = stocks.get_adjusted_stock(stockSymbol='HDFCBANK',
-    #                                    start_date='12-1-2011',
-    #                                    end_date='12-2-2011')
-
-    #     df_actual = pd.read_csv('tests/stocks_data/HDFCBANK.csv',
-    #                             index_col='Date', parse_dates=True,
-    #                             infer_datetime_format=True)
-
-    #     df = df.round(1)
-    #     df_actual = df_actual.round(1)
-
-    #     assert(df.to_string() == (df_actual).to_string())
 
     def test_scrape_bonus_splits(self):
 

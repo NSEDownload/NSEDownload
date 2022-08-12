@@ -1,0 +1,41 @@
+name: Bump Up version
+on:
+  push:
+    branches:
+      - *
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: stefanzweifel/git-auto-commit-action@v4
+      - uses: actions/checkout@v2
+      - name: Set up Python 3.8.12
+        uses: actions/setup-python@v1
+        with:
+          python-version: 3.8.12
+      - name: Install dependencies
+        run: python3 setup.py install
+      - name: Test with Indices
+        run: python3 -m unittest tests/indices_test.py
+      - name: Test with Stocks
+        run: python3 -m unittest tests/stocks_test.py
+
+      - name: Install Bump
+        run: pip3 install bump
+      - name: Bump Version
+        run: bump
+      - name: Delete old Package
+        run: rm -r dist/
+      - name: Generate New Package
+        run: python3 setup.py sdist
+
+      - name: Download pdoc3
+        run: pip install pdoc3
+      - name: Generate new docs
+        run: pdoc3 NSEDownload/ --html --force -o docs/
+
+      - uses: stefanzweifel/git-auto-commit-action@v4
+       with:
+        commit_message: Bumping Version
+        tagging_message: 'New Bump Version'
