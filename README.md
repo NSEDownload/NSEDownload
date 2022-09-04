@@ -4,10 +4,15 @@ A python Library to download publicly available data on NSE website for stocks a
 
 For a detailed usage : <a href="https://nsedownload.github.io/NSEDownload/">Documentation</a>
 
+## **Change Log** ##
+1. Removed checking of name in stocks. `check_stockSymbol` is removed. Closest alternative suggestion is also removed. fuzzywuzzy package no longer required.
+2. Code cleanup: variable nomenclature, static variables and multi-threaded code in scraper
+3. Change in requests: more resilient by adding backoff and retries.
+
 ## **Installation** ##
 
 ```python
-git clone -b '4.0' https://github.com/NSEDownload/NSEDownload
+git clone -b 'new_series_feature' https://github.com/NSEDownload/NSEDownload
 pip3 install NSEDownload/dist/*
 ```
 
@@ -17,13 +22,13 @@ pip3 install NSEDownload/dist/*
 from NSEDownload import stocks
 
 # Gets data without adjustment for events
-df = stocks.get_data(stockSymbol = 'RELIANCE', start_date = '15-9-2021', end_date = '1-10-2021')
+df = stocks.get_data(symbol='RELIANCE', start_date='15-9-2021', end_date='1-10-2021')
 
 # Adjusts the given stock data for events
 df = stocks.get_adjusted_data('RELIANCE', df)
 
 # Do above steps in one line to get adjusted data
-df = stocks.get_adjusted_stock(stockSymbol = 'RELIANCE', start_date = '15-9-2021', end_date = '1-10-2021')
+df = stocks.get_adjusted_stock(symbol='RELIANCE', start_date='15-9-2021', end_date='1-10-2021')
 ```
 
 Output as a pandas dataframe :
@@ -39,8 +44,9 @@ Output as a pandas dataframe :
 
 ```python
 from NSEDownload import indices
+
 # Getting historical data for index using date range
-df = indices.get_data(indexName = "NIFTY  50",start_date="09-01-2017",end_date="14-08-2019")
+df = indices.get_data(index_name="NIFTY  50", start_date="09-01-2017", end_date="14-08-2019")
 ```
 
 Output

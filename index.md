@@ -15,24 +15,25 @@ pip3 install NSEDownload/dist/*
 from NSEDownload import stocks
 
 # Gets data without adjustment for events
-df = stocks.get_data(stockSymbol = 'RELIANCE', start_date = '15-9-2021', end_date = '1-10-2021')
+df = stocks.get_data(symbol='RELIANCE', start_date='15-9-2021', end_date='1-10-2021')
 
 # Adjusts the given stock data for events
 df = stocks.get_adjusted_data('RELIANCE', df)
 
 # Do above steps in one line to get adjusted data
-df = stocks.get_adjusted_stock(stockSymbol = 'RELIANCE', start_date = '15-9-2021', end_date = '1-10-2021')
+df = stocks.get_adjusted_stock(symbol='RELIANCE', start_date='15-9-2021', end_date='1-10-2021')
 
 # Download all Series
-df = stocks.get_adjusted_stock(stockSymbol = 'RELIANCE', start_date = '15-9-2021', end_date = '1-10-2021', series='ALL')
+df = stocks.get_adjusted_stock(symbol='RELIANCE', start_date='15-9-2021', end_date='1-10-2021', series='ALL')
 ```
 
 ### Indices ###
 
 ```python
 from NSEDownload import indices
+
 # Getting historical data for index using date range
-df = indices.get_data(indexName = "NIFTY  50",start_date="09-01-2017",end_date="14-08-2019")
+df = indices.get_data(index_name="NIFTY  50", start_date="09-01-2017", end_date="14-08-2019")
 ```
 ## **Contributing** ##
 If you find any bugs or issue, please raise an issue for the same. You can also contribute by suggesting new features.
