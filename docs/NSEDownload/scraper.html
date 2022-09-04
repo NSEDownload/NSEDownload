@@ -123,7 +123,6 @@ def scrape_data(x, y, type, indexName=None, url=None, stockSymbol=None, symbolCo
             end_date = y
 
         if(type == &#39;stock&#39;):
-            print(series)
             final_url = get_symbol_mapping_url() + &#39;?symbol=&#39; + stockSymbol + &#39;&amp;segmentLink=3&amp;symbolCount&#39; + symbolCount + &#34;&amp;series=&#34; + series + &#34;&amp;dateRange=+&amp;fromDate=&#34; + \
                 start_date.strftime(
                     &#34;%d-%m-%Y&#34;)+&#34;&amp;toDate=&#34;+end_date.strftime(&#34;%d-%m-%Y&#34;)+&#34;&amp;dataType=PRICEVOLUMEDELIVERABLE&#34;
@@ -390,7 +389,6 @@ def scrape_symbolCount(stockSymbol):
             end_date = y
 
         if(type == &#39;stock&#39;):
-            print(series)
             final_url = get_symbol_mapping_url() + &#39;?symbol=&#39; + stockSymbol + &#39;&amp;segmentLink=3&amp;symbolCount&#39; + symbolCount + &#34;&amp;series=&#34; + series + &#34;&amp;dateRange=+&amp;fromDate=&#34; + \
                 start_date.strftime(
                     &#34;%d-%m-%Y&#34;)+&#34;&amp;toDate=&#34;+end_date.strftime(&#34;%d-%m-%Y&#34;)+&#34;&amp;dataType=PRICEVOLUMEDELIVERABLE&#34;
