@@ -26,8 +26,8 @@
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">import pandas as pd
-import numpy as np
+<pre><code class="python">import numpy as np
+import pandas as pd
 
 pd.options.mode.chained_assignment = None  # default=&#39;warn&#39;
 
@@ -69,26 +69,26 @@ def calculate_returns(data, include_date=False, include_price=False, make_csv=Fa
     | 2021-10-04 | 17691.2  | 0.0091          | -0.0092          | 0.0169           | 0.0212            | 0.0881            | 0.1173            | 0.2086            |
     &#34;&#34;&#34;
 
-    if(name is not None):
+    if name is not None:
         print(&#34;Calculating returns for &#34; + name)
     else:
         print(&#34;Calculating returns&#34;)
 
-    if(len(data) == 0):
+    if len(data) == 0:
         print(&#34;Dataframe given is empty.&#34;)
         return
 
     df = data
-    if(len(df) &gt; 1200):
-        df = df.iloc[len(df)-1200:len(df), :]
-        print(&#34;Size reduced to 1200 rows&#34;)
+    if len(df) &gt; 1200:
+        df = df.iloc[len(df) - 1200:len(df), :]
+        raise ValueError(&#34;Size reduced to 1200 rows&#34;)
 
     df[&#34;Date&#34;] = df.index
     df[&#34;Date&#34;] = pd.to_datetime(df[&#34;Date&#34;]).dt.date
     df = df.rename({&#39;Close Price&#39;: &#39;Close&#39;}, axis=&#39;columns&#39;)
 
-    startActual = (df.iloc[0][&#34;Date&#34;]).strftime(&#39;%Y-%m-%d&#39;)
-    endActual = (df.iloc[-1][&#34;Date&#34;]).strftime(&#39;%Y-%m-%d&#39;)
+    actual_start_date = (df.iloc[0][&#34;Date&#34;]).strftime(&#39;%Y-%m-%d&#39;)
+    actual_end_date = (df.iloc[-1][&#34;Date&#34;]).strftime(&#39;%Y-%m-%d&#39;)
 
     df = df.drop_duplicates()
     try:
@@ -107,22 +107,23 @@ def calculate_returns(data, include_date=False, include_price=False, make_csv=Fa
     df = df.reset_index()
 
     df.index = df[&#34;Date&#34;]
-    df = (df[startActual:endActual])
+    df = (df[actual_start_date:actual_end_date])
     df = df.asfreq(freq=&#34;1D&#34;)
     df[&#34;Date&#34;] = pd.to_datetime(df[&#34;Date&#34;])
 
     shift_by = [1, 7, 14, 30, 61, 91, 182, 273, 365, 730]
-    time_periods = [&#39;1 Day&#39;, &#39;1 Week&#39;, &#39;2 Week&#39;, &#39;1 Month&#39;, &#39;2 Month&#39;, &#39;3 Month&#39;, &#39;6 Month&#39;, &#39;9 Month&#39;, &#39;1 Year&#39;, &#39;2 Year&#39;]
+    time_periods = [&#39;1 Day&#39;, &#39;1 Week&#39;, &#39;2 Week&#39;, &#39;1 Month&#39;, &#39;2 Month&#39;, &#39;3 Month&#39;, &#39;6 Month&#39;, &#39;9 Month&#39;, &#39;1 Year&#39;,
+                    &#39;2 Year&#39;]
 
     for i in range(len(shift_by)):
 
-        if(include_date is True):
-            df[time_periods[i]+&#39; Date&#39;] = (df.Date.shift(shift_by[i])).dt.date
+        if include_date is True:
+            df[time_periods[i] + &#39; Date&#39;] = (df.Date.shift(shift_by[i])).dt.date
 
-        if(include_price is True):
-            df[time_periods[i]+&#39; Price&#39;] = df[&#34;Close&#34;].shift(shift_by[i])
+        if include_price is True:
+            df[time_periods[i] + &#39; Price&#39;] = df[&#34;Close&#34;].shift(shift_by[i])
 
-        df[time_periods[i]+&#39; Returns&#39;] = round((df[&#34;Close&#34;]/df[&#34;Close&#34;].shift(shift_by[i])) - 1, 4)
+        df[time_periods[i] + &#39; Returns&#39;] = round((df[&#34;Close&#34;] / df[&#34;Close&#34;].shift(shift_by[i])) - 1, 4)
 
     ar = (np.where(df[&#34;1 Day Returns&#34;] == 0))
     df.drop(df.index[ar], inplace=True)
@@ -133,14 +134,17 @@ def calculate_returns(data, include_date=False, include_price=False, make_csv=Fa
     try:
         df.drop(columns=[&#34;Date&#34;, &#39;Open&#39;, &#39;High&#39;, &#39;Low&#39;, &#39;Shares Traded&#39;, &#39;Turnover (Rs. Cr)&#39;], inplace=True)
     except KeyError:
-        df.drop(columns=[&#39;Date&#39;, &#39;Symbol&#39;, &#39;Series&#39;, &#39;Open Price&#39;, &#39;High Price&#39;, &#39;Low Price&#39;, &#39;Last Price&#39;, &#39;Average Price&#39;, &#39;Total Traded Quantity&#39;, &#39;Turnover&#39;, &#39;No. of Trades&#39;, &#39;Deliverable Qty&#39;, &#39;% Dly Qt to Traded Qty&#39;], inplace=True)
+        df.drop(
+            columns=[&#39;Date&#39;, &#39;Symbol&#39;, &#39;Series&#39;, &#39;Open Price&#39;, &#39;High Price&#39;, &#39;Low Price&#39;, &#39;Last Price&#39;, &#39;Average Price&#39;,
+                     &#39;Total Traded Quantity&#39;, &#39;Turnover&#39;, &#39;No. of Trades&#39;, &#39;Deliverable Qty&#39;, &#39;% Dly Qt to Traded Qty&#39;],
+            inplace=True)
 
     df = df.iloc[::-1]
     df.fillna(&#39;-&#39;, inplace=True)
 
-    if(make_csv is True):
+    if make_csv is True:
 
-        if(name is None):
+        if name is None:
             df.to_csv(&#34;data.csv&#34;, float_format=&#39;%.2f&#39;)
             print(&#34;File created : data.csv&#34;)
         else:
@@ -342,26 +346,26 @@ stock_returns = returns.calculate_returns(df, make_csv = True, name = &quot;Retu
     | 2021-10-04 | 17691.2  | 0.0091          | -0.0092          | 0.0169           | 0.0212            | 0.0881            | 0.1173            | 0.2086            |
     &#34;&#34;&#34;
 
-    if(name is not None):
+    if name is not None:
         print(&#34;Calculating returns for &#34; + name)
     else:
         print(&#34;Calculating returns&#34;)
 
-    if(len(data) == 0):
+    if len(data) == 0:
         print(&#34;Dataframe given is empty.&#34;)
         return
 
     df = data
-    if(len(df) &gt; 1200):
-        df = df.iloc[len(df)-1200:len(df), :]
-        print(&#34;Size reduced to 1200 rows&#34;)
+    if len(df) &gt; 1200:
+        df = df.iloc[len(df) - 1200:len(df), :]
+        raise ValueError(&#34;Size reduced to 1200 rows&#34;)
 
     df[&#34;Date&#34;] = df.index
     df[&#34;Date&#34;] = pd.to_datetime(df[&#34;Date&#34;]).dt.date
     df = df.rename({&#39;Close Price&#39;: &#39;Close&#39;}, axis=&#39;columns&#39;)
 
-    startActual = (df.iloc[0][&#34;Date&#34;]).strftime(&#39;%Y-%m-%d&#39;)
-    endActual = (df.iloc[-1][&#34;Date&#34;]).strftime(&#39;%Y-%m-%d&#39;)
+    actual_start_date = (df.iloc[0][&#34;Date&#34;]).strftime(&#39;%Y-%m-%d&#39;)
+    actual_end_date = (df.iloc[-1][&#34;Date&#34;]).strftime(&#39;%Y-%m-%d&#39;)
 
     df = df.drop_duplicates()
     try:
@@ -380,22 +384,23 @@ stock_returns = returns.calculate_returns(df, make_csv = True, name = &quot;Retu
     df = df.reset_index()
 
     df.index = df[&#34;Date&#34;]
-    df = (df[startActual:endActual])
+    df = (df[actual_start_date:actual_end_date])
     df = df.asfreq(freq=&#34;1D&#34;)
     df[&#34;Date&#34;] = pd.to_datetime(df[&#34;Date&#34;])
 
     shift_by = [1, 7, 14, 30, 61, 91, 182, 273, 365, 730]
-    time_periods = [&#39;1 Day&#39;, &#39;1 Week&#39;, &#39;2 Week&#39;, &#39;1 Month&#39;, &#39;2 Month&#39;, &#39;3 Month&#39;, &#39;6 Month&#39;, &#39;9 Month&#39;, &#39;1 Year&#39;, &#39;2 Year&#39;]
+    time_periods = [&#39;1 Day&#39;, &#39;1 Week&#39;, &#39;2 Week&#39;, &#39;1 Month&#39;, &#39;2 Month&#39;, &#39;3 Month&#39;, &#39;6 Month&#39;, &#39;9 Month&#39;, &#39;1 Year&#39;,
+                    &#39;2 Year&#39;]
 
     for i in range(len(shift_by)):
 
-        if(include_date is True):
-            df[time_periods[i]+&#39; Date&#39;] = (df.Date.shift(shift_by[i])).dt.date
+        if include_date is True:
+            df[time_periods[i] + &#39; Date&#39;] = (df.Date.shift(shift_by[i])).dt.date
 
-        if(include_price is True):
-            df[time_periods[i]+&#39; Price&#39;] = df[&#34;Close&#34;].shift(shift_by[i])
+        if include_price is True:
+            df[time_periods[i] + &#39; Price&#39;] = df[&#34;Close&#34;].shift(shift_by[i])
 
-        df[time_periods[i]+&#39; Returns&#39;] = round((df[&#34;Close&#34;]/df[&#34;Close&#34;].shift(shift_by[i])) - 1, 4)
+        df[time_periods[i] + &#39; Returns&#39;] = round((df[&#34;Close&#34;] / df[&#34;Close&#34;].shift(shift_by[i])) - 1, 4)
 
     ar = (np.where(df[&#34;1 Day Returns&#34;] == 0))
     df.drop(df.index[ar], inplace=True)
@@ -406,14 +411,17 @@ stock_returns = returns.calculate_returns(df, make_csv = True, name = &quot;Retu
     try:
         df.drop(columns=[&#34;Date&#34;, &#39;Open&#39;, &#39;High&#39;, &#39;Low&#39;, &#39;Shares Traded&#39;, &#39;Turnover (Rs. Cr)&#39;], inplace=True)
     except KeyError:
-        df.drop(columns=[&#39;Date&#39;, &#39;Symbol&#39;, &#39;Series&#39;, &#39;Open Price&#39;, &#39;High Price&#39;, &#39;Low Price&#39;, &#39;Last Price&#39;, &#39;Average Price&#39;, &#39;Total Traded Quantity&#39;, &#39;Turnover&#39;, &#39;No. of Trades&#39;, &#39;Deliverable Qty&#39;, &#39;% Dly Qt to Traded Qty&#39;], inplace=True)
+        df.drop(
+            columns=[&#39;Date&#39;, &#39;Symbol&#39;, &#39;Series&#39;, &#39;Open Price&#39;, &#39;High Price&#39;, &#39;Low Price&#39;, &#39;Last Price&#39;, &#39;Average Price&#39;,
+                     &#39;Total Traded Quantity&#39;, &#39;Turnover&#39;, &#39;No. of Trades&#39;, &#39;Deliverable Qty&#39;, &#39;% Dly Qt to Traded Qty&#39;],
+            inplace=True)
 
     df = df.iloc[::-1]
     df.fillna(&#39;-&#39;, inplace=True)
 
-    if(make_csv is True):
+    if make_csv is True:
 
-        if(name is None):
+        if name is None:
             df.to_csv(&#34;data.csv&#34;, float_format=&#39;%.2f&#39;)
             print(&#34;File created : data.csv&#34;)
         else:
