@@ -32,13 +32,13 @@ import pandas as pd
 pd.options.mode.chained_assignment = None  # default=&#39;warn&#39;
 
 
-def calculate_returns(data, include_date=False, include_price=False, make_csv=False, name=None):
+def calculate_returns(daily_data, include_date=False, include_price=False, make_csv=False, name=None):
     &#34;&#34;&#34;
 
     Calculates trailing returns over different time periods and returns df or makes csv file. The time periods are : 1 Day, 1 Week, 2 Weeks, 1 Month, 3 Months, 6 Months, 9 Months, 1 Year, 2 Years.
 
     Args:
-        data (DataFrame): Stock or index data
+        daily_data (DataFrame): Stock or index data
         include_date (bool, optional): If set to true, date of stock for given time period is added as a column in the dataframe. Defaults to False.
         include_price (bool, optional): If set to true, price of stock for given time period is added as a column in the dataframe. Defaults to False.
         make_csv (bool, optional): To make a csv file of returns. Defaults to False.
@@ -74,13 +74,12 @@ def calculate_returns(data, include_date=False, include_price=False, make_csv=Fa
     else:
         print(&#34;Calculating returns&#34;)
 
-    if len(data) == 0:
+    if len(daily_data) == 0:
         print(&#34;Dataframe given is empty.&#34;)
         return
 
-    df = data
+    df = daily_data
     if len(df) &gt; 1200:
-        df = df.iloc[len(df) - 1200:len(df), :]
         raise ValueError(&#34;Size reduced to 1200 rows&#34;)
 
     df[&#34;Date&#34;] = df.index
@@ -162,13 +161,13 @@ def calculate_returns(data, include_date=False, include_price=False, make_csv=Fa
 <h2 class="section-title" id="header-functions">Functions</h2>
 <dl>
 <dt id="NSEDownload.returns.calculate_returns"><code class="name flex">
-<span>def <span class="ident">calculate_returns</span></span>(<span>data, include_date=False, include_price=False, make_csv=False, name=None)</span>
+<span>def <span class="ident">calculate_returns</span></span>(<span>daily_data, include_date=False, include_price=False, make_csv=False, name=None)</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Calculates trailing returns over different time periods and returns df or makes csv file. The time periods are : 1 Day, 1 Week, 2 Weeks, 1 Month, 3 Months, 6 Months, 9 Months, 1 Year, 2 Years.</p>
 <h2 id="args">Args</h2>
 <dl>
-<dt><strong><code>data</code></strong> :&ensp;<code>DataFrame</code></dt>
+<dt><strong><code>daily_data</code></strong> :&ensp;<code>DataFrame</code></dt>
 <dd>Stock or index data</dd>
 <dt><strong><code>include_date</code></strong> :&ensp;<code>bool</code>, optional</dt>
 <dd>If set to true, date of stock for given time period is added as a column in the dataframe. Defaults to False.</dd>
@@ -309,13 +308,13 @@ stock_returns = returns.calculate_returns(df, make_csv = True, name = &quot;Retu
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def calculate_returns(data, include_date=False, include_price=False, make_csv=False, name=None):
+<pre><code class="python">def calculate_returns(daily_data, include_date=False, include_price=False, make_csv=False, name=None):
     &#34;&#34;&#34;
 
     Calculates trailing returns over different time periods and returns df or makes csv file. The time periods are : 1 Day, 1 Week, 2 Weeks, 1 Month, 3 Months, 6 Months, 9 Months, 1 Year, 2 Years.
 
     Args:
-        data (DataFrame): Stock or index data
+        daily_data (DataFrame): Stock or index data
         include_date (bool, optional): If set to true, date of stock for given time period is added as a column in the dataframe. Defaults to False.
         include_price (bool, optional): If set to true, price of stock for given time period is added as a column in the dataframe. Defaults to False.
         make_csv (bool, optional): To make a csv file of returns. Defaults to False.
@@ -351,13 +350,12 @@ stock_returns = returns.calculate_returns(df, make_csv = True, name = &quot;Retu
     else:
         print(&#34;Calculating returns&#34;)
 
-    if len(data) == 0:
+    if len(daily_data) == 0:
         print(&#34;Dataframe given is empty.&#34;)
         return
 
-    df = data
+    df = daily_data
     if len(df) &gt; 1200:
-        df = df.iloc[len(df) - 1200:len(df), :]
         raise ValueError(&#34;Size reduced to 1200 rows&#34;)
 
     df[&#34;Date&#34;] = df.index
