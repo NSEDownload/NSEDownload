@@ -1,25 +1,26 @@
-from NSEDownload.scraper import scrape_data, scrape_bonus_splits, scrape_symbolCount
-from NSEDownload.check import check_name
-from NSEDownload.static_data import stocks_values
-import pandas as pd
 import datetime
+
+import pandas as pd
+
+from NSEDownload.scraper import scrape_data, scrape_bonus_splits, scrape_symbol
 
 pd.options.mode.chained_assignment = None
 
 
-def get_data(stockSymbol, full_data=False, start_date=None, end_date=None, check_stockSymbol=True):
+def get_data(symbol, full_data=False, start_date=None, end_date=None, series="EQ"):
     """
     Function to get un-adjusted data for stocks
 
     Args:
-        stockSymbol (str): Scrip or Stock symbol in uppercase only
+        symbol (str): Scrip or Stock symbol in uppercase only
         full_data (bool, optional): Parameter to get complete data since inception. Defaults to False.
-        start_date ([type], optional): start date of date range in YYYY-MM-DD or DD-MM-YYYY format. Defaults to None.
-        end_date ([type], optional): end date of date range in YYYY-MM-DD or DD-MM-YYYY format. Defaults to None.
-        check_stockSymbol (bool, optional): If set to true, the sybmol is checked with internal list of stocks and returns closest stock if not present in list. Defaults to True.
+        start_date (datetime, optional): start date of date range in YYYY-MM-DD or DD-MM-YYYY format. Defaults to None.
+        end_date (datetime, optional): end date of date range in YYYY-MM-DD or DD-MM-YYYY format. Defaults to None.
+        series (str, optional): By default set to EQ, but can choose any series or All.
 
     Raises:
-        ValueError: If no dates are provided/ Incorrect format of dates/ If start date > end date
+        ValueError: If no dates are provided/ Incorrect format of dates
+        ValueError: If start date > end date
 
     Returns:
         DataFrame: Data for stocksymbol for given date range
@@ -53,40 +54,35 @@ def get_data(stockSymbol, full_data=False, start_date=None, end_date=None, check
 
     """
 
-    if(check_stockSymbol is True):
-        check_name(stocks_values, stocks_values, stockSymbol)
+    symbol = symbol.replace('&', '%26')
+    symbol_count = scrape_symbol(symbol)
 
-    stockSymbol = stockSymbol.replace('&', '%26')
-    symbolCount = scrape_symbolCount(stockSymbol)
-
-    if(full_data is True):
-
-        print("Downloading Full data for", stockSymbol)
-        x = datetime.datetime.strptime('1-1-1992', "%d-%m-%Y")
-        y = datetime.datetime.today()
+    if full_data is True:
+        parsed_start_date = datetime.datetime.strptime('1-1-1992', "%d-%m-%Y")
+        parsed_end_date = datetime.datetime.today()
 
     else:
 
-        if(start_date is None or end_date is None):
+        if start_date is None or end_date is None:
             raise ValueError("Provide start and end date.")
 
-        x = parse_date(start_date)
-        y = parse_date(end_date)
+        parsed_start_date = parse_date(start_date)
+        parsed_end_date = parse_date(end_date)
 
-        if(x > y):
+        if parsed_start_date > parsed_end_date:
             raise ValueError("Starting date is greater than end date.")
 
     result = scrape_data(
-        x, y, 'stock', stockSymbol=stockSymbol, symbolCount=symbolCount)
+        parsed_start_date, parsed_end_date, 'stock', stock_symbol=symbol, symbol_count=symbol_count, series=series)
     return result
 
 
-def get_adjusted_data(stockSymbol, df):
+def get_adjusted_data(symbol, df):
     """
     Given a dataframe of data and symbol, the price is adjusted for events after 2010.
 
     Args:
-        stockSymbol (str): Scrip or Stock symbol in uppercase only
+        symbol (str): Scrip or Stock symbol in uppercase only
         df (pandas dataframe): Data for given stock
 
     Returns:
@@ -98,7 +94,7 @@ def get_adjusted_data(stockSymbol, df):
     df = stocks.get_data(stockSymbol = 'RELIANCE', start_date = '15-9-2015', end_date = '1-10-2021')
     df = stocks.get_adjusted_data('RELIANCE', df)
     ```
-    Ouput
+    Output
     ```
     RELIANCE
     BONUS  on :  07-Sep-2017  and ratio is :  2.0
@@ -114,12 +110,12 @@ def get_adjusted_data(stockSymbol, df):
     """
 
     events = ['SPLIT', 'BONUS']
-    arr = ['Open Price', 'High Price', 'Low Price',
+    headers = ['Open Price', 'High Price', 'Low Price',
            'Last Price', 'Close Price', 'Average Price']
 
-    stockSymbol = stockSymbol.replace('&', '%26')
+    symbol = symbol.replace('&', '%26')
 
-    if(df.empty):
+    if df.empty:
         print("Please check data. Dataframe is empty")
         return df
 
@@ -133,19 +129,18 @@ def get_adjusted_data(stockSymbol, df):
 
     for event in events:
 
-        ratio, dates = scrape_bonus_splits(stockSymbol, event)
-        for i in range(len(dates)):
+        ratio, dates = scrape_bonus_splits(symbol, event)
+        for index in range(len(dates)):
 
-            date = datetime.datetime.strptime(dates[i], '%d-%b-%Y')
-            print(event, " on : ", dates[i], " and ratio is : ", ratio[i])
+            date = datetime.datetime.strptime(dates[index], '%d-%b-%Y')
+            print(event, " on : ", dates[index], " and ratio is : ", ratio[index])
 
             changed_data = df.loc[df.index < date]
             same_data = df.loc[df.index >= date]
 
-            for j in arr:
-
+            for header_index in headers:
                 try:
-                    changed_data.loc[:, j] = changed_data.loc[:, j]/ratio[i]
+                    changed_data.loc[:, header_index] = changed_data.loc[:, header_index] / ratio[index]
                 except TypeError:
                     pass
 
@@ -154,16 +149,15 @@ def get_adjusted_data(stockSymbol, df):
     return df
 
 
-def get_adjusted_stock(stockSymbol, full_data=False, start_date=None, end_date=None, check_stockSymbol=True):
+def get_adjusted_stock(symbol, full_data=False, start_date=None, end_date=None):
     """
     Returns adjusted stock in 1 step. Combines get_data and get_adjusted_data
 
     Args:
-        stockSymbol (str): Scrip or Stock symbol in uppercase only
+        symbol (str): Scrip or Stock symbol in uppercase only
         full_data (bool, optional): Parameter to get complete data since inception. Defaults to False.
         start_date (str, optional): start date of date range in YYYY-MM-DD or DD-MM-YYYY format. Defaults to None.
         end_date (str, optional): end date of date range in YYYY-MM-DD or DD-MM-YYYY format. Defaults to None.
-        check_stockSymbol (bool, optional): If set to true, the sybmol is checked with internal list of stocks and returns closest stock if not present in list. Defaults to True.
 
     Returns:
         DataFrame: DataFrame containing data for stocksymbol for given date range
@@ -176,9 +170,8 @@ def get_adjusted_stock(stockSymbol, full_data=False, start_date=None, end_date=N
     ```
     """
 
-    df = get_data(stockSymbol, full_data, start_date,
-                  end_date, check_stockSymbol)
-    df = get_adjusted_data(stockSymbol, df)
+    df = get_data(symbol, full_data, start_date, end_date)
+    df = get_adjusted_data(symbol, df)
 
     return df
 

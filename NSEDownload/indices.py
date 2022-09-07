@@ -1,20 +1,20 @@
 import datetime
-from NSEDownload.static_data import values, arr, valuesTRI, arrTRI, get_historical_index_url, get_TRI_index_url
-from NSEDownload.check import check_name
+
 from NSEDownload.scraper import scrape_data
+from NSEDownload.static_data import get_historical_index_url, get_tri_index_url, \
+    get_formatted_names_indices, get_common_names_indices
 
 
-def get_data(indexName, full_data=False, start_date=None, end_date=None, indextype=None, check_index=True):
+def get_data(index_name, full_data=False, start_date=None, end_date=None, indextype=None):
     """
     To get data for indices using dates or full_data
 
     Args:
-        indexName (str): Name of index to scrape
+        index_name (str): Name of index to scrape
         full_data (bool, optional): If set to True, then complete data is scrape. Defaults to False.
         start_date (str, optional): start date of date range in YYYY-MM-DD or DD-MM-YYYY format. Defaults to None.
         end_date (str, optional): end date of date range in YYYY-MM-DD or DD-MM-YYYY format. Defaults to None.
         indextype (str, optional): 'historical' or 'TRI'. Defaults to None.
-        check_index (bool, optional): If set to true, the index is checked with internal list of indices and returns closest name if not present in list. Defaults to True.
 
     Raises:
         ValueError: If no dates are provided/ Incorrect format of dates/ If start date > end date
@@ -60,32 +60,28 @@ def get_data(indexName, full_data=False, start_date=None, end_date=None, indexty
 
     """
 
-    url, Array, Values = get_historical_index_url(), arr, values
+    index_name = check_name(index_name)
 
-    if(indextype == "TRI" or indextype == "tri" or indextype == "T" or indextype == 't'):
-        url, Array, Values = get_TRI_index_url(), arrTRI, valuesTRI
+    url = get_historical_index_url()
+    if indextype == "TRI" or indextype == "tri" or indextype == "T" or indextype == 't':
+        url = get_tri_index_url()
 
-    if(check_index is True):
-        check_name(Array, Values, indexName)
+    if full_data is False:
 
-    if(full_data is False):
+        if start_date is None or end_date is None:
+            raise ValueError("Provide start and end date.")
 
-        if(start_date is None or end_date is None):
-            raise ValueError("Provide start and end date. ")
+        parsed_start_date, parsed_end_date = parse_date(start_date), parse_date(end_date)
 
-        x = parse_date(start_date)
-        y = parse_date(end_date)
-
-        if(x > y):
+        if parsed_start_date > parsed_end_date:
             raise ValueError("Starting date is greater than end date.")
 
     else:
-        print("Downloading Full data for", indexName)
-        x = datetime.datetime.strptime('1-1-1990', "%d-%m-%Y")
-        y = datetime.datetime.today()
 
-    result = scrape_data(x, y, 'index', indexName=indexName, url=url)
-    return result
+        parsed_start_date = datetime.datetime.strptime('1-1-1990', "%d-%m-%Y")
+        parsed_end_date = datetime.datetime.today()
+
+    return scrape_data(parsed_start_date, parsed_end_date, 'index', index_name=index_name, url=url)
 
 
 def parse_date(text):
@@ -100,3 +96,21 @@ def parse_date(text):
             pass
 
     raise ValueError('Dates should be in YYYY-MM-DD or DD-MM-YYYY format')
+
+
+def check_name(name):
+    """Checking for proper index name and returning with proper formatting
+
+    Args:
+        name (str): Name of stock or index
+
+    Raises:
+        ValueError: If the name is not in the list then raises error
+    """
+
+    formatted_names, common_names = get_formatted_names_indices(), get_common_names_indices()
+    for i in range(len(formatted_names)):
+        if formatted_names[i] == name or common_names[i] == name:
+            return formatted_names[i]
+
+    raise ValueError("Please check symbol " + name)
