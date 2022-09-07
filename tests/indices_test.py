@@ -1,11 +1,9 @@
+import NSEDownload.indices as indices  # The code to test
 import unittest  # The test framework
-
 import pandas as pd
 
-import NSEDownload.indices as indices  # The code to test
 
-
-class Test_stocks(unittest.TestCase):
+class indices_test(unittest.TestCase):
 
     def test_get_data(self):
         df = indices.get_data(index_name='NIFTY 50',
@@ -15,7 +13,7 @@ class Test_stocks(unittest.TestCase):
         df_actual = pd.read_csv('tests/indices_data/NIFTY_50.csv',
                                 index_col='Date')
 
-        self.assertTrue(df.to_string() == (df_actual).to_string())
+        self.assertTrue(df.to_string() == df_actual.to_string())
 
     def test_get_data_2(self):
         df = indices.get_data(index_name="NIFTY MidSmallcap 400",
@@ -25,7 +23,7 @@ class Test_stocks(unittest.TestCase):
         df_actual = pd.read_csv('tests/indices_data/NIFTY_MS_400.csv',
                                 index_col='Date')
 
-        self.assertTrue(df.to_string() == (df_actual).to_string())
+        self.assertTrue(df.to_string() == df_actual.to_string())
 
     def test_get_data_3(self):
         df = indices.get_data(index_name="NIFTY Shariah 25",
@@ -35,7 +33,7 @@ class Test_stocks(unittest.TestCase):
         df_actual = pd.read_csv('tests/indices_data/NIFTY_S_25.csv',
                                 index_col='Date')
 
-        self.assertTrue(df.to_string() == (df_actual).to_string())
+        self.assertTrue(df.to_string() == df_actual.to_string())
 
     def test_get_data_TRI(self):
         df = indices.get_data(index_name="NIFTY100 LIQUID 15",
@@ -53,6 +51,7 @@ class Test_stocks(unittest.TestCase):
                               start_date="09-01-2017",
                               end_date="14-08-2022")
         self.assertFalse(df.empty)
+
 
 if __name__ == '__main__':
     unittest.main()

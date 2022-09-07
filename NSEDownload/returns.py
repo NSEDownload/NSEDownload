@@ -4,13 +4,13 @@ import pandas as pd
 pd.options.mode.chained_assignment = None  # default='warn'
 
 
-def calculate_returns(data, include_date=False, include_price=False, make_csv=False, name=None):
+def calculate_returns(daily_data, include_date=False, include_price=False, make_csv=False, name=None):
     """
 
     Calculates trailing returns over different time periods and returns df or makes csv file. The time periods are : 1 Day, 1 Week, 2 Weeks, 1 Month, 3 Months, 6 Months, 9 Months, 1 Year, 2 Years.
 
     Args:
-        data (DataFrame): Stock or index data
+        daily_data (DataFrame): Stock or index data
         include_date (bool, optional): If set to true, date of stock for given time period is added as a column in the dataframe. Defaults to False.
         include_price (bool, optional): If set to true, price of stock for given time period is added as a column in the dataframe. Defaults to False.
         make_csv (bool, optional): To make a csv file of returns. Defaults to False.
@@ -46,13 +46,12 @@ def calculate_returns(data, include_date=False, include_price=False, make_csv=Fa
     else:
         print("Calculating returns")
 
-    if len(data) == 0:
+    if len(daily_data) == 0:
         print("Dataframe given is empty.")
         return
 
-    df = data
+    df = daily_data
     if len(df) > 1200:
-        df = df.iloc[len(df) - 1200:len(df), :]
         raise ValueError("Size reduced to 1200 rows")
 
     df["Date"] = df.index

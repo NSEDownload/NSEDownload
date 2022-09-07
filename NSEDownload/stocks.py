@@ -69,7 +69,7 @@ def get_data(symbol, full_data=False, start_date=None, end_date=None, series="EQ
         parsed_start_date = parse_date(start_date)
         parsed_end_date = parse_date(end_date)
 
-        if (parsed_start_date > parsed_end_date):
+        if parsed_start_date > parsed_end_date:
             raise ValueError("Starting date is greater than end date.")
 
     result = scrape_data(
