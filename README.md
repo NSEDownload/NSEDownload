@@ -1,5 +1,7 @@
 # **NSEDownload** #
 
+[![Bump Up version](https://github.com/NSEDownload/NSEDownload/actions/workflows/Bump.yaml/badge.svg)](https://github.com/NSEDownload/NSEDownload/actions/workflows/Bump.yaml)
+
 A python Library to download publicly available data on NSE website for stocks and indices. Get the **price history**, **adjusted prices** and generate **trailing returns** of stocks and indices directly as a pandas dataframe.
 
 For a detailed usage : <a href="https://nsedownload.github.io/NSEDownload/">Documentation</a>
