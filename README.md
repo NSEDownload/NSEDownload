@@ -10,6 +10,7 @@ For a detailed usage : <a href="https://nsedownload.github.io/NSEDownload/">Docu
 1. Removed checking of name in stocks. `check_stockSymbol` is removed. Closest alternative suggestion is also removed. fuzzywuzzy package no longer required.
 2. Code cleanup: variable nomenclature, static variables and multithreaded code in scraper
 3. Change in requests: more resilient by adding backoff and retries.
+4. Specify Series as argument like 'ALL', 'BE' and 'EQ'. (By default set to 'EQ')
 
 ## **Installation** ##
 
@@ -31,9 +32,12 @@ df = stocks.get_adjusted_data('RELIANCE', df)
 
 # Do above step in one line to get adjusted data
 df = stocks.get_adjusted_stock(symbol='RELIANCE', start_date='15-9-2021', end_date='1-10-2021')
+
+# Download data for series BE
+df = stocks.get_data(symbol = 'JSWENERGY', full_data=True, series="BE")
 ```
 
-Output as a pandas dataframe :
+Sample Output as a pandas dataframe :
 
 | Date       | Symbol   | Series | Prev Close | Open Price | High Price | Low Price | Last Price | Close Price | Average Price | Total Traded Quantity |    Turnover | No. of Trades | Deliverable Qty | % Dly Qt to Traded Qty |
 |:-----------|:---------|:-------|-----------:|-----------:|-----------:|----------:|-----------:|------------:|--------------:|----------------------:|------------:|--------------:|----------------:|-----------------------:|
