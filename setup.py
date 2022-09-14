@@ -2,7 +2,7 @@ import setuptools
 
 setuptools.setup(
     name="NSEDownload",
-    version="4.1.10",
+    version="4.1.11",
     author="Jinit S",
     description="Download Stocks and Indices Data from NSE",
 
