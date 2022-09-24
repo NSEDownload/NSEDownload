@@ -1,12 +1,12 @@
 import datetime
+import json
 import math
-import re
-import threading
-from io import StringIO
-
 import pandas as pd
+import re
 import requests
+import threading
 from bs4 import BeautifulSoup
+from io import StringIO
 from requests.adapters import HTTPAdapter, Retry
 
 from NSEDownload.static_data import get_headers, get_adjusted_headers, get_symbol_mapping_url, get_company_events_url, \
@@ -105,57 +105,65 @@ def scrape_data(start_date, end_date, request_type,
     return result
 
 
-def scrape_bonus_splits(symbol, event_type):
+def add_quotes_to_field(match):
+    match = match.group()
+    return match[0] + '"' + match[1:-1] + '":'
+
+
+def scrape_bonus_splits(symbol):
     """Scrapes for bonuses and splits
 
     Args:
         symbol (str): Stock Symbol
-        event_type (str): Type of Event
 
     Returns:
         list: Returns list of dates of event and ratio of original and new price
     """
 
     event_dates, event_ratio = [], []
-    if not (event_type == "SPLIT" or event_type == "BONUS"):
-        print("Event type not understood")
-        return [event_ratio, event_dates]
+    url_more_than_24 = get_company_events_url() + symbol + \
+                       "&Industry=&ExDt=More%20than%2024%20" \
+                       "Months&exDt=More%20than%2024%20Months" \
+                       "&recordDt=&bcstartDt=&industry" \
+                       "=&CAType="
 
-    url = get_company_events_url() + symbol + \
-          "&Industry=&ExDt=More%20than%2024%20" \
-          "Months&exDt=More%20than%2024%20Months" \
-          "&recordDt=&bcstartDt=&industry" \
-          "=&CAType=" + event_type
+    url_last_24 = get_company_events_url() + symbol + \
+                  "&Industry=&ExDt=Last%2012%20Months" \
+                  "&exDt=Last%2012%20Months&" \
+                  "&recordDt=&bcstartDt=&industry" \
+                  "=&CAType="
 
-    response = requests.get(url, timeout=60, headers=get_adjusted_headers())
-    page_content = BeautifulSoup(response.content, "html.parser").text.replace('\n', '').replace('\t', '')
-    start_date = page_content.find('exDt:"')
-    end_date = page_content.find(',', start_date)
+    for url in [url_more_than_24, url_last_24]:
 
-    while start_date != -1:
+        response = requests.get(url, timeout=60, headers=get_adjusted_headers())
+        page_content = "{" + BeautifulSoup(response.content, "html.parser").text.replace('\n', '').replace('\t', '')[16:]
+        json_input = re.sub(r'[{,][a-zA-Z]+:', add_quotes_to_field, page_content)
+        json_content = json.loads(json_input)
+        corporate_actions = json_content["rows"]
 
-        sub_start = page_content.find('Spl')
-        if sub_start == -1:
-            sub_start = page_content.find("sub")
+        for row in corporate_actions:
 
-        if event_type == "BONUS":
-            sub_start = page_content.find('Bonus')
+            subject = row["sub"].lower()
+            date = row["exDt"]
+            if date not in event_dates:
 
-        sub_end = page_content.find(',', sub_start)
-        num = re.findall('\d+', page_content[sub_start:sub_end])
+                # Scraping for Splits
+                if subject.find("split") != -1 or subject.find("division") != -1:
+                    num = re.findall('\d+', subject)
+                    if len(num) < 2:
+                        continue
+                    event_ratio.append(int(num[0]) / int(num[1]))
+                    event_dates.append(date)
+                    print("Split event on: " + date)
 
-        if len(num) < 2:
-            print("Unable to parse given message" + page_content)
-        elif event_type == "BONUS":
-            event_ratio.append((int(num[0]) + int(num[1])) / int(num[1]))
-        else:
-            event_ratio.append(int(num[0]) / int(num[1]))
-
-        event_dates.append(page_content[start_date + 6:end_date - 1])
-        page_content = page_content[end_date:-1]
-
-        start_date = page_content.find('exDt:"')
-        end_date = page_content.find(',', start_date)
+                # Scraping for Bonus
+                if subject.find("bonus") != -1:
+                    num = re.findall('\d+', subject)
+                    if len(num) < 2:
+                        continue
+                    event_ratio.append((int(num[0]) + int(num[1])) / int(num[1]))
+                    event_dates.append(date)
+                    print("Bonus event on: " + date)
 
     return [event_ratio, event_dates]
 

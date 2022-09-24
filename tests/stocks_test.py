@@ -19,17 +19,24 @@ class stocks_test(unittest.TestCase):
         self.assertTrue(df.to_string() == df_actual.to_string())
 
     def test_scrape_bonus_splits(self):
-        val = stocks.scrape_bonus_splits("LAOPALA", "SPLIT")
-        self.assertTrue(str(val) == "[[5.0], ['24-Sep-2014']]")
+        val = stocks.scrape_bonus_splits("LAOPALA")
+        self.assertTrue(len(val[0]) >= 2)
+        self.assertTrue(val[1][0] == '24-Sep-2014')
+        self.assertTrue(val[1][1] == '22-Mar-2018')
+
+    def test_scrape_bonus_splits_2(self):
+        val = stocks.scrape_bonus_splits("TATASTEEL")
+        self.assertTrue(len(val[0]) >= 1)
+        self.assertTrue(val[1][0] == '28-Jul-2022')
 
     def test_data(self):
-        df = stocks.get_data(symbol='JSWENERGY', full_data=True, series="ALL")
+        df = stocks.get_adjusted_stock(symbol='RELIANCE', full_data=True)
         self.assertFalse(df.empty)
 
-        df = stocks.get_data(symbol='RELIANCE', full_data=True, series="ALL")
+        df = stocks.get_adjusted_stock(symbol='ITC', full_data=True)
         self.assertFalse(df.empty)
 
-        df = stocks.get_data(symbol='ITC', full_data=True, series="ALL")
+        df = stocks.get_adjusted_stock(symbol='TOLANIBULK', full_data=True)
         self.assertFalse(df.empty)
 
 

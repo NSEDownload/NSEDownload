@@ -69,7 +69,7 @@ def get_data(symbol, full_data=False, start_date=None, end_date=None, series="EQ
         parsed_start_date = parse_date(start_date)
         parsed_end_date = parse_date(end_date)
 
-        if (parsed_start_date > parsed_end_date):
+        if parsed_start_date > parsed_end_date:
             raise ValueError("Starting date is greater than end date.")
 
     result = scrape_data(
@@ -109,7 +109,6 @@ def get_adjusted_data(symbol, df):
 
     """
 
-    events = ['SPLIT', 'BONUS']
     headers = ['Open Price', 'High Price', 'Low Price',
            'Last Price', 'Close Price', 'Average Price']
 
@@ -127,24 +126,20 @@ def get_adjusted_data(symbol, df):
     except KeyError:
         pass
 
-    for event in events:
+    ratio, dates = scrape_bonus_splits(symbol)
+    for index in range(len(dates)):
 
-        ratio, dates = scrape_bonus_splits(symbol, event)
-        for index in range(len(dates)):
+        date = datetime.datetime.strptime(dates[index], '%d-%b-%Y')
+        changed_data = df.loc[df.index < date]
+        same_data = df.loc[df.index >= date]
 
-            date = datetime.datetime.strptime(dates[index], '%d-%b-%Y')
-            print(event, " on : ", dates[index], " and ratio is : ", ratio[index])
+        for header_index in headers:
+            try:
+                changed_data.loc[:, header_index] = changed_data.loc[:, header_index] / ratio[index]
+            except TypeError:
+                pass
 
-            changed_data = df.loc[df.index < date]
-            same_data = df.loc[df.index >= date]
-
-            for header_index in headers:
-                try:
-                    changed_data.loc[:, header_index] = changed_data.loc[:, header_index] / ratio[index]
-                except TypeError:
-                    pass
-
-            df = pd.concat([changed_data, same_data])
+        df = pd.concat([changed_data, same_data])
 
     return df
 

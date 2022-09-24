@@ -137,7 +137,6 @@ def get_adjusted_data(symbol, df):
 
     &#34;&#34;&#34;
 
-    events = [&#39;SPLIT&#39;, &#39;BONUS&#39;]
     headers = [&#39;Open Price&#39;, &#39;High Price&#39;, &#39;Low Price&#39;,
            &#39;Last Price&#39;, &#39;Close Price&#39;, &#39;Average Price&#39;]
 
@@ -155,24 +154,20 @@ def get_adjusted_data(symbol, df):
     except KeyError:
         pass
 
-    for event in events:
+    ratio, dates = scrape_bonus_splits(symbol)
+    for index in range(len(dates)):
 
-        ratio, dates = scrape_bonus_splits(symbol, event)
-        for index in range(len(dates)):
+        date = datetime.datetime.strptime(dates[index], &#39;%d-%b-%Y&#39;)
+        changed_data = df.loc[df.index &lt; date]
+        same_data = df.loc[df.index &gt;= date]
 
-            date = datetime.datetime.strptime(dates[index], &#39;%d-%b-%Y&#39;)
-            print(event, &#34; on : &#34;, dates[index], &#34; and ratio is : &#34;, ratio[index])
+        for header_index in headers:
+            try:
+                changed_data.loc[:, header_index] = changed_data.loc[:, header_index] / ratio[index]
+            except TypeError:
+                pass
 
-            changed_data = df.loc[df.index &lt; date]
-            same_data = df.loc[df.index &gt;= date]
-
-            for header_index in headers:
-                try:
-                    changed_data.loc[:, header_index] = changed_data.loc[:, header_index] / ratio[index]
-                except TypeError:
-                    pass
-
-            df = pd.concat([changed_data, same_data])
+        df = pd.concat([changed_data, same_data])
 
     return df
 
@@ -302,7 +297,6 @@ BONUS  on :  07-Sep-2017  and ratio is :  2.0
 
     &#34;&#34;&#34;
 
-    events = [&#39;SPLIT&#39;, &#39;BONUS&#39;]
     headers = [&#39;Open Price&#39;, &#39;High Price&#39;, &#39;Low Price&#39;,
            &#39;Last Price&#39;, &#39;Close Price&#39;, &#39;Average Price&#39;]
 
@@ -320,24 +314,20 @@ BONUS  on :  07-Sep-2017  and ratio is :  2.0
     except KeyError:
         pass
 
-    for event in events:
+    ratio, dates = scrape_bonus_splits(symbol)
+    for index in range(len(dates)):
 
-        ratio, dates = scrape_bonus_splits(symbol, event)
-        for index in range(len(dates)):
+        date = datetime.datetime.strptime(dates[index], &#39;%d-%b-%Y&#39;)
+        changed_data = df.loc[df.index &lt; date]
+        same_data = df.loc[df.index &gt;= date]
 
-            date = datetime.datetime.strptime(dates[index], &#39;%d-%b-%Y&#39;)
-            print(event, &#34; on : &#34;, dates[index], &#34; and ratio is : &#34;, ratio[index])
+        for header_index in headers:
+            try:
+                changed_data.loc[:, header_index] = changed_data.loc[:, header_index] / ratio[index]
+            except TypeError:
+                pass
 
-            changed_data = df.loc[df.index &lt; date]
-            same_data = df.loc[df.index &gt;= date]
-
-            for header_index in headers:
-                try:
-                    changed_data.loc[:, header_index] = changed_data.loc[:, header_index] / ratio[index]
-                except TypeError:
-                    pass
-
-            df = pd.concat([changed_data, same_data])
+        df = pd.concat([changed_data, same_data])
 
     return df</code></pre>
 </details>
