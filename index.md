@@ -33,7 +33,7 @@ df = stocks.get_adjusted_stock(symbol='RELIANCE', start_date='15-9-2021', end_da
 from NSEDownload import indices
 
 # Getting historical data for index using date range
-df = indices.get_data(index_name="NIFTY  50", start_date="09-01-2017", end_date="14-08-2019")
+df = indices.get_data(index_name="NIFTY 50", start_date="09-01-2017", end_date="14-08-2019")
 ```
 ## **Contributing** ##
 If you find any bugs or issue, please raise an issue for the same. You can also contribute by suggesting new features.
