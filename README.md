@@ -52,10 +52,10 @@ Sample Output as a pandas dataframe :
 from NSEDownload import indices
 
 # Getting historical data for index using date range
-df = indices.get_data(index_name="NIFTY  50", start_date="09-01-2017", end_date="14-08-2019")
+df = indices.get_data(index_name="NIFTY 50", start_date="09-01-2017", end_date="14-08-2019")
 
 # Getting TRI data for index using date range
-df = indices.get_data(index_name="NIFTY  50", start_date="09-01-2017", end_date="14-08-2019", indextype='TRI')
+df = indices.get_data(index_name="NIFTY 50", start_date="09-01-2017", end_date="14-08-2019", indextype='TRI')
 ```
 
 Output
