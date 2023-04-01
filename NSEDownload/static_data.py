@@ -79,7 +79,7 @@ def get_formatted_names_indices():
 
 def get_headers():
     return {
-        "Host": "www1.nseindia.com",
+        "Host": "www.nseindia.com",
         "User-Agent": "Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:84.0) Gecko/20100101 Firefox/84.0",
         "Accept": "*/*",
         "Accept-Language": "en-US,en;q=0.5",
@@ -95,7 +95,7 @@ def get_headers():
 
 def get_adjusted_headers():
     return {
-        'Host': 'www1.nseindia.com',
+        'Host': 'www.nseindia.com',
         'User-Agent': 'Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:85.0) Gecko/20100101 Firefox/85.0',
         'Accept': '*/*',
         'Accept-Language': 'en-US,en;q=0.5',
@@ -107,20 +107,20 @@ def get_adjusted_headers():
 
 
 def get_symbol_mapping_url():
-    return 'https://www1.nseindia.com/products/dynaContent/common/productsSymbolMapping.jsp'
+    return 'https://www.nseindia.com/products/dynaContent/common/productsSymbolMapping.jsp'
 
 
 def get_company_events_url():
-    return 'https://www1.nseindia.com/corporates/corpInfo/equities/getCorpActions.jsp?symbol='
+    return 'https://www.nseindia.com/corporates/corpInfo/equities/getCorpActions.jsp?symbol='
 
 
 def get_symbol_count_url():
-    return 'https://www1.nseindia.com/marketinfo/sym_map/symbolCount.jsp?symbol='
+    return 'https://www.nseindia.com/marketinfo/sym_map/symbolCount.jsp?symbol='
 
 
 def get_historical_index_url():
-    return 'https://www1.nseindia.com/products/dynaContent/equities/indices/historicalindices.jsp'
+    return 'https://www.nseindia.com/products/dynaContent/equities/indices/historicalindices.jsp'
 
 
 def get_tri_index_url():
-    return 'https://www1.nseindia.com/products/dynaContent/equities/indices/total_returnindices.jsp'
+    return 'https://www.nseindia.com/products/dynaContent/equities/indices/total_returnindices.jsp'
