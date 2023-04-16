@@ -1,7 +1,6 @@
 README.md
 setup.py
 NSEDownload/__init__.py
-NSEDownload/check.py
 NSEDownload/indices.py
 NSEDownload/returns.py
 NSEDownload/scraper.py
