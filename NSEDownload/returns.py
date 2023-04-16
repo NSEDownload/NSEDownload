@@ -14,7 +14,7 @@ def calculate_returns(data, include_date=False, include_price=False, make_csv=Fa
         include_date (bool, optional): If set to true, date of stock for given time period is added as a column in the dataframe. Defaults to False.
         include_price (bool, optional): If set to true, price of stock for given time period is added as a column in the dataframe. Defaults to False.
         make_csv (bool, optional): To make a csv file of returns. Defaults to False.
-        name (type, optional): Name of csv file. Defaults to None.
+        name (input_type, optional): Name of csv file. Defaults to None.
 
     Returns:
         DataFrame: DataFrame containing returns
@@ -66,7 +66,7 @@ def calculate_returns(data, include_date=False, include_price=False, make_csv=Fa
     try:
         df = df.pivot(index="Date", columns="Close")
     except KeyError as e:
-        print("Check data provided and index type", e)
+        print("Check data provided and index input_type", e)
         return
 
     start_date = df.index.min() - pd.DateOffset(day=1)

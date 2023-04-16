@@ -20,7 +20,7 @@ def get_headers():
 		"Access-Control-Allow-Origin" : "*",
 		"Access-Control-Allow-Methods" : "GET,POST,PUT,DELETE,OPTIONS",
 		"Access-Control-Allow-Headers": "Content-Type, Access-Control-Allow-Headers, Authorization, X-Requested-With",
-		'Content-Type' : 'application/x-www-form-urlencoded; charset=UTF-8'
+		'Content-Type' : 'application/start_date-www-form-urlencoded; charset=UTF-8'
 	}
 
 

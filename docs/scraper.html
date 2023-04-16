@@ -42,7 +42,7 @@ interm_dfs = []
 incomplete_df = False
 
 
-def worker_thread():
+def fetch_url():
     &#34;&#34;&#34;
         This is the function call made by each thread. A get request is made for given start and end date, response is parsed and dataframe is returned
     &#34;&#34;&#34;
@@ -110,7 +110,7 @@ def scrape_data(x, y, type, indexName=None, url=None, stockSymbol=None, symbolCo
     interm_dfs = [pd.DataFrame()] * total_stages
     incomplete_df = False
 
-    threading.Thread(target=worker_thread, daemon=True).start()
+    threading.Thread(target=fetch_url, daemon=True).start()
 
     for stage in range(total_stages):
 
@@ -363,7 +363,7 @@ def scrape_symbolCount(stockSymbol):
     interm_dfs = [pd.DataFrame()] * total_stages
     incomplete_df = False
 
-    threading.Thread(target=worker_thread, daemon=True).start()
+    threading.Thread(target=fetch_url, daemon=True).start()
 
     for stage in range(total_stages):
 
@@ -460,8 +460,8 @@ def scrape_symbolCount(stockSymbol):
     return symbolCount</code></pre>
 </details>
 </dd>
-<dt id="NSEDownload.scraper.worker_thread"><code class="name flex">
-<span>def <span class="ident">worker_thread</span></span>(<span>)</span>
+<dt id="NSEDownload.scraper.fetch_url"><code class="name flex">
+<span>def <span class="ident">fetch_url</span></span>(<span>)</span>
 </code></dt>
 <dd>
 <div class="desc"><p>This is the function call made by each thread. A get request is made for given start and end date, response is parsed and dataframe is returned</p></div>
@@ -469,7 +469,7 @@ def scrape_symbolCount(stockSymbol):
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def worker_thread():
+<pre><code class="python">def fetch_url():
     &#34;&#34;&#34;
         This is the function call made by each thread. A get request is made for given start and end date, response is parsed and dataframe is returned
     &#34;&#34;&#34;
@@ -537,7 +537,7 @@ def scrape_symbolCount(stockSymbol):
 <li><code><a title="NSEDownload.scraper.scrape_bonus_splits" href="#NSEDownload.scraper.scrape_bonus_splits">scrape_bonus_splits</a></code></li>
 <li><code><a title="NSEDownload.scraper.scrape_data" href="#NSEDownload.scraper.scrape_data">scrape_data</a></code></li>
 <li><code><a title="NSEDownload.scraper.scrape_symbolCount" href="#NSEDownload.scraper.scrape_symbolCount">scrape_symbolCount</a></code></li>
-<li><code><a title="NSEDownload.scraper.worker_thread" href="#NSEDownload.scraper.worker_thread">worker_thread</a></code></li>
+<li><code><a title="NSEDownload.scraper.fetch_url" href="#NSEDownload.scraper.fetch_url">fetch_url</a></code></li>
 </ul>
 </li>
 </ul>

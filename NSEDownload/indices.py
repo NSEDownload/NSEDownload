@@ -1,5 +1,5 @@
 import datetime
-from NSEDownload.static_data import values, arr, valuesTRI, arrTRI, get_historical_index_url, get_TRI_index_url
+from NSEDownload.static_data import values, arr, valuesTRI, arrTRI, get_historical_index_url, get_tri_index_url
 from NSEDownload.check import check_name
 from NSEDownload.scraper import scrape_data
 
@@ -45,7 +45,7 @@ def get_data(indexName, full_data=False, start_date=None, end_date=None, indexty
     2018-01-05    -    -   -  4354.23         56414034           3668.95   
     2018-01-08    -    -   -  4382.23         42746996           2925.44   
 
-    [249 rows x 7 columns]
+    [249 rows start_date 7 columns]
     ```
 
     ```
@@ -63,7 +63,7 @@ def get_data(indexName, full_data=False, start_date=None, end_date=None, indexty
     url, Array, Values = get_historical_index_url(), arr, values
 
     if(indextype == "TRI" or indextype == "tri" or indextype == "T" or indextype == 't'):
-        url, Array, Values = get_TRI_index_url(), arrTRI, valuesTRI
+        url, Array, Values = get_tri_index_url(), arrTRI, valuesTRI
 
     if(check_index is True):
         check_name(Array, Values, indexName)

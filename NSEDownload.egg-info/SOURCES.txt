@@ -7,6 +7,7 @@ NSEDownload/returns.py
 NSEDownload/scraper.py
 NSEDownload/static_data.py
 NSEDownload/stocks.py
+NSEDownload/test.py
 NSEDownload.egg-info/PKG-INFO
 NSEDownload.egg-info/SOURCES.txt
 NSEDownload.egg-info/dependency_links.txt

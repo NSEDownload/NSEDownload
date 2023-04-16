@@ -14,8 +14,8 @@ def get_data(stockSymbol, full_data=False, start_date=None, end_date=None, check
     Args:
         stockSymbol (str): Scrip or Stock symbol in uppercase only
         full_data (bool, optional): Parameter to get complete data since inception. Defaults to False.
-        start_date ([type], optional): start date of date range in YYYY-MM-DD or DD-MM-YYYY format. Defaults to None.
-        end_date ([type], optional): end date of date range in YYYY-MM-DD or DD-MM-YYYY format. Defaults to None.
+        start_date ([input_type], optional): start date of date range in YYYY-MM-DD or DD-MM-YYYY format. Defaults to None.
+        end_date ([input_type], optional): end date of date range in YYYY-MM-DD or DD-MM-YYYY format. Defaults to None.
         check_stockSymbol (bool, optional): If set to true, the sybmol is checked with internal list of stocks and returns closest stock if not present in list. Defaults to True.
 
     Raises:
@@ -27,7 +27,7 @@ def get_data(stockSymbol, full_data=False, start_date=None, end_date=None, check
     ##Example
     ```
     # Providing date range
-    df = stocks.get_data(stockSymbol='RELIANCE', start_date='15-9-2021', end_date='1-10-2021')
+    df = stocks.get_data(stock_symbol='RELIANCE', start_date='15-9-2021', end_date='1-10-2021')
     ```
     Output
     ```
@@ -44,10 +44,10 @@ def get_data(stockSymbol, full_data=False, start_date=None, end_date=None, check
 
     ```
     # Using full_data argument
-    df = stocks.get_data(stockSymbol='RELIANCE', full_data=True)
+    df = stocks.get_data(stock_symbol='RELIANCE', full_data=True)
 
     # Here ANGELONE isn't cross-checked as a correct scrip symbol
-    df = stocks.get_data(stockSymbol='ANGELONE', full_data=True, check_stockSymbol=False)
+    df = stocks.get_data(stock_symbol='ANGELONE', full_data=True, check_stockSymbol=False)
 
     ```
 
@@ -95,7 +95,7 @@ def get_adjusted_data(stockSymbol, df):
     ##Example
     ```
     from NSEDownload import stocks
-    df = stocks.get_data(stockSymbol = 'RELIANCE', start_date = '15-9-2015', end_date = '1-10-2021')
+    df = stocks.get_data(stock_symbol = 'RELIANCE', start_date = '15-9-2015', end_date = '1-10-2021')
     df = stocks.get_adjusted_data('RELIANCE', df)
     ```
     Ouput
@@ -171,8 +171,8 @@ def get_adjusted_stock(stockSymbol, full_data=False, start_date=None, end_date=N
     ##Example
     ```
     from NSEDownload import stocks
-    df = stocks.get_adjusted_stock(stockSymbol='NMDC', full_data=True)
-    df = stocks.get_adjusted_stock(stockSymbol='INFY', start_date="2010-11-12", end_date="2011-11-12")
+    df = stocks.get_adjusted_stock(stock_symbol='NMDC', full_data=True)
+    df = stocks.get_adjusted_stock(stock_symbol='INFY', start_date="2010-11-12", end_date="2011-11-12")
     ```
     """
 

@@ -10,7 +10,7 @@ import pandas as pd
 from NSEDownload.static_data import get_headers, get_adjusted_headers, get_symbol_mapping_url, get_company_events_url, get_symbol_count_url
 
 q = queue.Queue()
-interm_dfs = []
+interim_dfs = []
 incomplete_df = False
 
 
@@ -48,7 +48,7 @@ def worker_thread():
                 df.set_index("Date", inplace=True)
                 df = df[::-1]
 
-                interm_dfs[stage] = df
+                interim_dfs[stage] = df
 
             except AttributeError:
                 pass
@@ -68,9 +68,9 @@ def scrape_data(x, y, type, indexName=None, url=None, stockSymbol=None, symbolCo
         x (datetime): start date
         y (datetime): end date
         type (str): Either 'stock' or 'index'
-        indexName (str, optional): If type index then this gives name of index. Defaults to None.
+        indexName (str, optional): If input_type index then this gives name of index. Defaults to None.
         url (str, optional): URL to scrape from. Defaults to None.
-        stockSymbol (str, optional): If type stock then this gives stock symbol. Defaults to None.
+        stockSymbol (str, optional): If input_type stock then this gives stock symbol. Defaults to None.
         symbolCount (str, optional): Intermediate variable needed for scraping. Defaults to None.
 
     Returns:
@@ -78,7 +78,7 @@ def scrape_data(x, y, type, indexName=None, url=None, stockSymbol=None, symbolCo
     """
 
     stage, total_stages = 0, math.ceil((y-x).days/365)
-    global interm_dfs, incomplete_df
+    global interim_dfs, incomplete_df
     interm_dfs = [pd.DataFrame()] * total_stages
     incomplete_df = False
 
@@ -138,7 +138,7 @@ def scrape_bonus_splits(stockSymbol, event_type):
     dates, ratio = [], []
 
     if(not (event_type == "SPLIT" or event_type == "BONUS")):
-        print("Event type not understood")
+        print("Event input_type not understood")
         return [ratio, dates]
 
     url = get_company_events_url() + stockSymbol + \
