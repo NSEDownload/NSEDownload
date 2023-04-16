@@ -16,8 +16,9 @@ For a detailed usage : <a href="https://nsedownload.github.io/NSEDownload/">Docu
 
 ```python
 git clone -b 'jshah-fix-nse-url' https://github.com/NSEDownload/NSEDownload
-pip3 install NSEDownload/dist/*
+pip3 install NSEDownload/dist/NSEDownload-4.1.17.tar.gz
 ```
+
 
 ## **Usage** ##
 
