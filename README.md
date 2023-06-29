@@ -22,6 +22,8 @@ df = stocks.get_data(stock_symbol="RELIANCE", start_date='15-9-2021', end_date='
 ```
 
 Sample Output as a pandas dataframe :
+
+```
 | Date | Symbol | Series | High Price | Low Price | Open Price | Close Price | Last Price | Prev Close Price | Total
 Traded Quantity | Total Traded Value | 52 Week High Price | 52 Week Low Price |
 |--------------------------|--------|--------|------------|-----------|------------|-------------|------------|------------------|-----------------------|--------------------|--------------------|-------------------|
@@ -35,6 +37,7 @@ Traded Quantity | Total Traded Value | 52 Week High Price | 52 Week Low Price |
 | 2896 | 1623 |
 | 2021-08-17T18:30:00.000Z | HDFC | EQ | 2770.3 | 2698.0 | 2750.0 | 2710.75 | 2710.0 | 2738.4 | 2501410 | 6828940469.75
 | 2896 | 1623 |
+```
 
 ## **Change Log** ##
 
