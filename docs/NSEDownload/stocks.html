@@ -26,29 +26,28 @@
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">import datetime
-
+<pre><code class="python">from NSEDownload.scraper import scrape_data
 import pandas as pd
+import datetime
+import logging
 
-from NSEDownload.scraper import scrape_data, scrape_bonus_splits, scrape_symbol
-
+logging.basicConfig(level=logging.INFO, format=&#39;%(asctime)s %(levelname)s:%(message)s&#39;)
 pd.options.mode.chained_assignment = None
 
 
-def get_data(symbol, full_data=False, start_date=None, end_date=None, series=&#34;EQ&#34;):
+def get_data(stock_symbol, full_data=False, start_date=None, end_date=None):
     &#34;&#34;&#34;
     Function to get un-adjusted data for stocks
 
     Args:
-        symbol (str): Scrip or Stock symbol in uppercase only
+        stock_symbol (str): Scrip or Stock symbol in uppercase only
         full_data (bool, optional): Parameter to get complete data since inception. Defaults to False.
-        start_date (datetime, optional): start date of date range in YYYY-MM-DD or DD-MM-YYYY format. Defaults to None.
-        end_date (datetime, optional): end date of date range in YYYY-MM-DD or DD-MM-YYYY format. Defaults to None.
-        series (str, optional): By default set to EQ, but can choose any series or All.
+        start_date ([input_type], optional): start date of date range in YYYY-MM-DD or DD-MM-YYYY format.
+        Defaults to None.
+        end_date ([input_type], optional): end date of date range in YYYY-MM-DD or DD-MM-YYYY format. Defaults to None.
 
     Raises:
-        ValueError: If no dates are provided/ Incorrect format of dates
-        ValueError: If start date &gt; end date
+        ValueError: If no dates are provided/ Incorrect format of dates/ If start date &gt; end date
 
     Returns:
         DataFrame: Data for stocksymbol for given date range
@@ -56,41 +55,35 @@ def get_data(symbol, full_data=False, start_date=None, end_date=None, series=&#3
     ##Example
     ```
     # Providing date range
-    df = stocks.get_data(stockSymbol=&#39;RELIANCE&#39;, start_date=&#39;15-9-2021&#39;, end_date=&#39;1-10-2021&#39;)
+    df = stocks.get_data(stock_symbol=&#34;RELIANCE&#34;, start_date=&#39;15-9-2021&#39;, end_date=&#39;1-10-2021&#39;)
     ```
     Output
     ```
-    | Date                | Symbol   | Series   |   Prev Close |   Open Price |   High Price |   Low Price |   Last Price |   Close Price |   Average Price |   Total Traded Quantity |    Turnover |   No. of Trades |   Deliverable Qty |   % Dly Qt to Traded Qty |
-    |:--------------------|:---------|:---------|-------------:|-------------:|-------------:|------------:|-------------:|--------------:|----------------:|------------------------:|------------:|----------------:|------------------:|-------------------------:|
-    | 2021-09-15 | RELIANCE | EQ       |      2368.45 |      2368.5  |      2395.75 |     2368.5  |      2379.4  |       2378.3  |         2380.39 |                 4186300 | 9.96505e+09 |          168130 |           2310144 |                    55.18 |
-    | 2021-09-16 | RELIANCE | EQ       |      2378.3  |      2381.55 |      2436.75 |     2367    |      2424    |       2428.2  |         2408.55 |                 6206657 | 1.49491e+10 |          214010 |           2473588 |                    39.85 |
-    | 2021-09-17 | RELIANCE | EQ       |      2428.2  |      2446    |      2455.85 |     2375.6  |      2387    |       2390.55 |         2410.13 |                16098099 | 3.87986e+10 |          278098 |           9460717 |                    58.77 |
-    | 2021-09-20 | RELIANCE | EQ       |      2390.55 |      2372.1  |      2418.35 |     2370    |      2391.85 |       2394.35 |         2398.57 |                 5436385 | 1.30396e+10 |          171011 |           3042705 |                    55.97 |
-    | 2021-09-21 | RELIANCE | EQ       |      2394.35 |      2405    |      2416.6  |     2384    |      2400    |       2404.7  |         2401.93 |                 4576111 | 1.09915e+10 |          149803 |           2365643 |                    51.7  |
-    | 2021-09-22 | RELIANCE | EQ       |      2404.7  |      2408    |      2442    |     2398.25 |      2430.8  |       2430.5  |         2426.47 |                 5074612 | 1.23134e+10 |          179090 |           2811116 |                    55.4  |
+    | Date                     | Symbol | Series | High Price | Low Price | Open Price | Close Price | Last Price | Prev Close Price | Total Traded Quantity | Total Traded Value | 52 Week High Price | 52 Week Low Price |
+    |--------------------------|--------|--------|------------|-----------|------------|-------------|------------|------------------|-----------------------|--------------------|--------------------|-------------------|
+    | 2021-08-11T18:30:00.000Z | HDFC   | EQ     | 2675.25    | 2646.6    | 2656.6     | 2668.75     | 2666.0     | 2658.5           | 1702479               | 4532596291.9       | 2896               | 1623              |
+    | 2021-08-12T18:30:00.000Z | HDFC   | EQ     | 2715.0     | 2662.0    | 2662.0     | 2704.15     | 2702.1     | 2668.75          | 3248615               | 8774705017.55      | 2896               | 1623              |
+    | 2021-08-15T18:30:00.000Z | HDFC   | EQ     | 2734.45    | 2693.8    | 2696.8     | 2731.15     | 2732.7     | 2704.15          | 2465887               | 6709996706.95      | 2896               | 1623              |
+    | 2021-08-16T18:30:00.000Z | HDFC   | EQ     | 2750.0     | 2707.15   | 2729.95    | 2738.4      | 2745.6     | 2731.15          | 2795510               | 7620988084.3       | 2896               | 1623              |
+    | 2021-08-17T18:30:00.000Z | HDFC   | EQ     | 2770.3     | 2698.0    | 2750.0     | 2710.75     | 2710.0     | 2738.4           | 2501410               | 6828940469.75      | 2896               | 1623              |
 
     ```
 
     ```
     # Using full_data argument
-    df = stocks.get_data(stockSymbol=&#39;RELIANCE&#39;, full_data=True)
-
-    # Here ANGELONE isn&#39;t cross-checked as a correct scrip symbol
-    df = stocks.get_data(stockSymbol=&#39;ANGELONE&#39;, full_data=True, check_stockSymbol=False)
+    df = stocks.get_data(stock_symbol=&#39;RELIANCE&#39;, full_data=True)
 
     ```
 
     &#34;&#34;&#34;
 
-    symbol = symbol.replace(&#39;&amp;&#39;, &#39;%26&#39;)
-    symbol_count = scrape_symbol(symbol)
+    stock_symbol = stock_symbol.replace(&#39;&amp;&#39;, &#39;%26&#39;)
 
     if full_data is True:
         parsed_start_date = datetime.datetime.strptime(&#39;1-1-1992&#39;, &#34;%d-%m-%Y&#34;)
         parsed_end_date = datetime.datetime.today()
 
     else:
-
         if start_date is None or end_date is None:
             raise ValueError(&#34;Provide start and end date.&#34;)
 
@@ -100,103 +93,8 @@ def get_data(symbol, full_data=False, start_date=None, end_date=None, series=&#3
         if parsed_start_date &gt; parsed_end_date:
             raise ValueError(&#34;Starting date is greater than end date.&#34;)
 
-    result = scrape_data(
-        parsed_start_date, parsed_end_date, &#39;stock&#39;, stock_symbol=symbol, symbol_count=symbol_count, series=series)
+    result = scrape_data(start_date=parsed_start_date, end_date=parsed_end_date, input_type=&#39;stock&#39;, name=stock_symbol)
     return result
-
-
-def get_adjusted_data(symbol, df):
-    &#34;&#34;&#34;
-    Given a dataframe of data and symbol, the price is adjusted for events after 2010.
-
-    Args:
-        symbol (str): Scrip or Stock symbol in uppercase only
-        df (pandas dataframe): Data for given stock
-
-    Returns:
-        DataFrame: dataframe with adjusted data
-
-    ##Example
-    ```
-    from NSEDownload import stocks
-    df = stocks.get_data(stockSymbol = &#39;RELIANCE&#39;, start_date = &#39;15-9-2015&#39;, end_date = &#39;1-10-2021&#39;)
-    df = stocks.get_adjusted_data(&#39;RELIANCE&#39;, df)
-    ```
-    Output
-    ```
-    RELIANCE
-    BONUS  on :  07-Sep-2017  and ratio is :  2.0
-    ```
-
-    Adjusts can be easily check by plotting the closing price :
-
-    |   Before Adjustment       |   After Adjustment    |
-    | :--------:                |   :--------:          |
-    |&lt;img src = &#34;Pre_adjustment.png&#34;&gt;            |&lt;img src = &#34;Post_adjustment.png&#34;&gt;    |
-
-
-    &#34;&#34;&#34;
-
-    headers = [&#39;Open Price&#39;, &#39;High Price&#39;, &#39;Low Price&#39;,
-           &#39;Last Price&#39;, &#39;Close Price&#39;, &#39;Average Price&#39;]
-
-    symbol = symbol.replace(&#39;&amp;&#39;, &#39;%26&#39;)
-
-    if df.empty:
-        print(&#34;Please check data. Dataframe is empty&#34;)
-        return df
-
-    df.index = pd.to_datetime(df.index)
-    df.sort_index(inplace=True)
-
-    try:
-        df = df.drop([&#39;Prev Close&#39;], axis=1)
-    except KeyError:
-        pass
-
-    ratio, dates = scrape_bonus_splits(symbol)
-    for index in range(len(dates)):
-
-        date = datetime.datetime.strptime(dates[index], &#39;%d-%b-%Y&#39;)
-        changed_data = df.loc[df.index &lt; date]
-        same_data = df.loc[df.index &gt;= date]
-
-        for header_index in headers:
-            try:
-                changed_data.loc[:, header_index] = changed_data.loc[:, header_index] / ratio[index]
-            except TypeError:
-                pass
-
-        df = pd.concat([changed_data, same_data])
-
-    return df
-
-
-def get_adjusted_stock(symbol, full_data=False, start_date=None, end_date=None):
-    &#34;&#34;&#34;
-    Returns adjusted stock in 1 step. Combines get_data and get_adjusted_data
-
-    Args:
-        symbol (str): Scrip or Stock symbol in uppercase only
-        full_data (bool, optional): Parameter to get complete data since inception. Defaults to False.
-        start_date (str, optional): start date of date range in YYYY-MM-DD or DD-MM-YYYY format. Defaults to None.
-        end_date (str, optional): end date of date range in YYYY-MM-DD or DD-MM-YYYY format. Defaults to None.
-
-    Returns:
-        DataFrame: DataFrame containing data for stocksymbol for given date range
-
-    ##Example
-    ```
-    from NSEDownload import stocks
-    df = stocks.get_adjusted_stock(stockSymbol=&#39;NMDC&#39;, full_data=True)
-    df = stocks.get_adjusted_stock(stockSymbol=&#39;INFY&#39;, start_date=&#34;2010-11-12&#34;, end_date=&#34;2011-11-12&#34;)
-    ```
-    &#34;&#34;&#34;
-
-    df = get_data(symbol, full_data, start_date, end_date)
-    df = get_adjusted_data(symbol, df)
-
-    return df
 
 
 def parse_date(text):
@@ -220,199 +118,27 @@ def parse_date(text):
 <section>
 <h2 class="section-title" id="header-functions">Functions</h2>
 <dl>
-<dt id="NSEDownload.stocks.get_adjusted_data"><code class="name flex">
-<span>def <span class="ident">get_adjusted_data</span></span>(<span>symbol, df)</span>
-</code></dt>
-<dd>
-<div class="desc"><p>Given a dataframe of data and symbol, the price is adjusted for events after 2010.</p>
-<h2 id="args">Args</h2>
-<dl>
-<dt><strong><code>symbol</code></strong> :&ensp;<code>str</code></dt>
-<dd>Scrip or Stock symbol in uppercase only</dd>
-<dt><strong><code>df</code></strong> :&ensp;<code>pandas dataframe</code></dt>
-<dd>Data for given stock</dd>
-</dl>
-<h2 id="returns">Returns</h2>
-<dl>
-<dt><code>DataFrame</code></dt>
-<dd>dataframe with adjusted data</dd>
-</dl>
-<h2 id="example">Example</h2>
-<pre><code>from NSEDownload import stocks
-df = stocks.get_data(stockSymbol = 'RELIANCE', start_date = '15-9-2015', end_date = '1-10-2021')
-df = stocks.get_adjusted_data('RELIANCE', df)
-</code></pre>
-<p>Output</p>
-<pre><code>RELIANCE
-BONUS  on :  07-Sep-2017  and ratio is :  2.0
-</code></pre>
-<p>Adjusts can be easily check by plotting the closing price :</p>
-<table>
-<thead>
-<tr>
-<th style="text-align: center;">Before Adjustment</th>
-<th style="text-align: center;">After Adjustment</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td style="text-align: center;"><img src = "Pre_adjustment.png"></td>
-<td style="text-align: center;"><img src = "Post_adjustment.png"></td>
-</tr>
-</tbody>
-</table></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def get_adjusted_data(symbol, df):
-    &#34;&#34;&#34;
-    Given a dataframe of data and symbol, the price is adjusted for events after 2010.
-
-    Args:
-        symbol (str): Scrip or Stock symbol in uppercase only
-        df (pandas dataframe): Data for given stock
-
-    Returns:
-        DataFrame: dataframe with adjusted data
-
-    ##Example
-    ```
-    from NSEDownload import stocks
-    df = stocks.get_data(stockSymbol = &#39;RELIANCE&#39;, start_date = &#39;15-9-2015&#39;, end_date = &#39;1-10-2021&#39;)
-    df = stocks.get_adjusted_data(&#39;RELIANCE&#39;, df)
-    ```
-    Output
-    ```
-    RELIANCE
-    BONUS  on :  07-Sep-2017  and ratio is :  2.0
-    ```
-
-    Adjusts can be easily check by plotting the closing price :
-
-    |   Before Adjustment       |   After Adjustment    |
-    | :--------:                |   :--------:          |
-    |&lt;img src = &#34;Pre_adjustment.png&#34;&gt;            |&lt;img src = &#34;Post_adjustment.png&#34;&gt;    |
-
-
-    &#34;&#34;&#34;
-
-    headers = [&#39;Open Price&#39;, &#39;High Price&#39;, &#39;Low Price&#39;,
-           &#39;Last Price&#39;, &#39;Close Price&#39;, &#39;Average Price&#39;]
-
-    symbol = symbol.replace(&#39;&amp;&#39;, &#39;%26&#39;)
-
-    if df.empty:
-        print(&#34;Please check data. Dataframe is empty&#34;)
-        return df
-
-    df.index = pd.to_datetime(df.index)
-    df.sort_index(inplace=True)
-
-    try:
-        df = df.drop([&#39;Prev Close&#39;], axis=1)
-    except KeyError:
-        pass
-
-    ratio, dates = scrape_bonus_splits(symbol)
-    for index in range(len(dates)):
-
-        date = datetime.datetime.strptime(dates[index], &#39;%d-%b-%Y&#39;)
-        changed_data = df.loc[df.index &lt; date]
-        same_data = df.loc[df.index &gt;= date]
-
-        for header_index in headers:
-            try:
-                changed_data.loc[:, header_index] = changed_data.loc[:, header_index] / ratio[index]
-            except TypeError:
-                pass
-
-        df = pd.concat([changed_data, same_data])
-
-    return df</code></pre>
-</details>
-</dd>
-<dt id="NSEDownload.stocks.get_adjusted_stock"><code class="name flex">
-<span>def <span class="ident">get_adjusted_stock</span></span>(<span>symbol, full_data=False, start_date=None, end_date=None)</span>
-</code></dt>
-<dd>
-<div class="desc"><p>Returns adjusted stock in 1 step. Combines get_data and get_adjusted_data</p>
-<h2 id="args">Args</h2>
-<dl>
-<dt><strong><code>symbol</code></strong> :&ensp;<code>str</code></dt>
-<dd>Scrip or Stock symbol in uppercase only</dd>
-<dt><strong><code>full_data</code></strong> :&ensp;<code>bool</code>, optional</dt>
-<dd>Parameter to get complete data since inception. Defaults to False.</dd>
-<dt><strong><code>start_date</code></strong> :&ensp;<code>str</code>, optional</dt>
-<dd>start date of date range in YYYY-MM-DD or DD-MM-YYYY format. Defaults to None.</dd>
-<dt><strong><code>end_date</code></strong> :&ensp;<code>str</code>, optional</dt>
-<dd>end date of date range in YYYY-MM-DD or DD-MM-YYYY format. Defaults to None.</dd>
-</dl>
-<h2 id="returns">Returns</h2>
-<dl>
-<dt><code>DataFrame</code></dt>
-<dd>DataFrame containing data for stocksymbol for given date range</dd>
-</dl>
-<h2 id="example">Example</h2>
-<pre><code>from NSEDownload import stocks
-df = stocks.get_adjusted_stock(stockSymbol='NMDC', full_data=True)
-df = stocks.get_adjusted_stock(stockSymbol='INFY', start_date=&quot;2010-11-12&quot;, end_date=&quot;2011-11-12&quot;)
-</code></pre></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def get_adjusted_stock(symbol, full_data=False, start_date=None, end_date=None):
-    &#34;&#34;&#34;
-    Returns adjusted stock in 1 step. Combines get_data and get_adjusted_data
-
-    Args:
-        symbol (str): Scrip or Stock symbol in uppercase only
-        full_data (bool, optional): Parameter to get complete data since inception. Defaults to False.
-        start_date (str, optional): start date of date range in YYYY-MM-DD or DD-MM-YYYY format. Defaults to None.
-        end_date (str, optional): end date of date range in YYYY-MM-DD or DD-MM-YYYY format. Defaults to None.
-
-    Returns:
-        DataFrame: DataFrame containing data for stocksymbol for given date range
-
-    ##Example
-    ```
-    from NSEDownload import stocks
-    df = stocks.get_adjusted_stock(stockSymbol=&#39;NMDC&#39;, full_data=True)
-    df = stocks.get_adjusted_stock(stockSymbol=&#39;INFY&#39;, start_date=&#34;2010-11-12&#34;, end_date=&#34;2011-11-12&#34;)
-    ```
-    &#34;&#34;&#34;
-
-    df = get_data(symbol, full_data, start_date, end_date)
-    df = get_adjusted_data(symbol, df)
-
-    return df</code></pre>
-</details>
-</dd>
 <dt id="NSEDownload.stocks.get_data"><code class="name flex">
-<span>def <span class="ident">get_data</span></span>(<span>symbol, full_data=False, start_date=None, end_date=None, series='EQ')</span>
+<span>def <span class="ident">get_data</span></span>(<span>stock_symbol, full_data=False, start_date=None, end_date=None)</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Function to get un-adjusted data for stocks</p>
 <h2 id="args">Args</h2>
 <dl>
-<dt><strong><code>symbol</code></strong> :&ensp;<code>str</code></dt>
+<dt><strong><code>stock_symbol</code></strong> :&ensp;<code>str</code></dt>
 <dd>Scrip or Stock symbol in uppercase only</dd>
 <dt><strong><code>full_data</code></strong> :&ensp;<code>bool</code>, optional</dt>
 <dd>Parameter to get complete data since inception. Defaults to False.</dd>
-<dt><strong><code>start_date</code></strong> :&ensp;<code>datetime</code>, optional</dt>
-<dd>start date of date range in YYYY-MM-DD or DD-MM-YYYY format. Defaults to None.</dd>
-<dt><strong><code>end_date</code></strong> :&ensp;<code>datetime</code>, optional</dt>
+<dt><strong><code>start_date</code></strong> :&ensp;<code>[input_type]</code>, optional</dt>
+<dd>start date of date range in YYYY-MM-DD or DD-MM-YYYY format.</dd>
+<dt>Defaults to None.</dt>
+<dt><strong><code>end_date</code></strong> :&ensp;<code>[input_type]</code>, optional</dt>
 <dd>end date of date range in YYYY-MM-DD or DD-MM-YYYY format. Defaults to None.</dd>
-<dt><strong><code>series</code></strong> :&ensp;<code>str</code>, optional</dt>
-<dd>By default set to EQ, but can choose any series or All.</dd>
 </dl>
 <h2 id="raises">Raises</h2>
 <dl>
 <dt><code>ValueError</code></dt>
-<dd>If no dates are provided/ Incorrect format of dates</dd>
-<dt><code>ValueError</code></dt>
-<dd>If start date &gt; end date</dd>
+<dd>If no dates are provided/ Incorrect format of dates/ If start date &gt; end date</dd>
 </dl>
 <h2 id="returns">Returns</h2>
 <dl>
@@ -421,44 +147,39 @@ df = stocks.get_adjusted_stock(stockSymbol='INFY', start_date=&quot;2010-11-12&q
 </dl>
 <h2 id="example">Example</h2>
 <pre><code># Providing date range
-df = stocks.get_data(stockSymbol='RELIANCE', start_date='15-9-2021', end_date='1-10-2021')
+df = stocks.get_data(stock_symbol=&quot;RELIANCE&quot;, start_date='15-9-2021', end_date='1-10-2021')
 </code></pre>
 <p>Output</p>
-<pre><code>| Date                | Symbol   | Series   |   Prev Close |   Open Price |   High Price |   Low Price |   Last Price |   Close Price |   Average Price |   Total Traded Quantity |    Turnover |   No. of Trades |   Deliverable Qty |   % Dly Qt to Traded Qty |
-|:--------------------|:---------|:---------|-------------:|-------------:|-------------:|------------:|-------------:|--------------:|----------------:|------------------------:|------------:|----------------:|------------------:|-------------------------:|
-| 2021-09-15 | RELIANCE | EQ       |      2368.45 |      2368.5  |      2395.75 |     2368.5  |      2379.4  |       2378.3  |         2380.39 |                 4186300 | 9.96505e+09 |          168130 |           2310144 |                    55.18 |
-| 2021-09-16 | RELIANCE | EQ       |      2378.3  |      2381.55 |      2436.75 |     2367    |      2424    |       2428.2  |         2408.55 |                 6206657 | 1.49491e+10 |          214010 |           2473588 |                    39.85 |
-| 2021-09-17 | RELIANCE | EQ       |      2428.2  |      2446    |      2455.85 |     2375.6  |      2387    |       2390.55 |         2410.13 |                16098099 | 3.87986e+10 |          278098 |           9460717 |                    58.77 |
-| 2021-09-20 | RELIANCE | EQ       |      2390.55 |      2372.1  |      2418.35 |     2370    |      2391.85 |       2394.35 |         2398.57 |                 5436385 | 1.30396e+10 |          171011 |           3042705 |                    55.97 |
-| 2021-09-21 | RELIANCE | EQ       |      2394.35 |      2405    |      2416.6  |     2384    |      2400    |       2404.7  |         2401.93 |                 4576111 | 1.09915e+10 |          149803 |           2365643 |                    51.7  |
-| 2021-09-22 | RELIANCE | EQ       |      2404.7  |      2408    |      2442    |     2398.25 |      2430.8  |       2430.5  |         2426.47 |                 5074612 | 1.23134e+10 |          179090 |           2811116 |                    55.4  |
+<pre><code>| Date                     | Symbol | Series | High Price | Low Price | Open Price | Close Price | Last Price | Prev Close Price | Total Traded Quantity | Total Traded Value | 52 Week High Price | 52 Week Low Price |
+|--------------------------|--------|--------|------------|-----------|------------|-------------|------------|------------------|-----------------------|--------------------|--------------------|-------------------|
+| 2021-08-11T18:30:00.000Z | HDFC   | EQ     | 2675.25    | 2646.6    | 2656.6     | 2668.75     | 2666.0     | 2658.5           | 1702479               | 4532596291.9       | 2896               | 1623              |
+| 2021-08-12T18:30:00.000Z | HDFC   | EQ     | 2715.0     | 2662.0    | 2662.0     | 2704.15     | 2702.1     | 2668.75          | 3248615               | 8774705017.55      | 2896               | 1623              |
+| 2021-08-15T18:30:00.000Z | HDFC   | EQ     | 2734.45    | 2693.8    | 2696.8     | 2731.15     | 2732.7     | 2704.15          | 2465887               | 6709996706.95      | 2896               | 1623              |
+| 2021-08-16T18:30:00.000Z | HDFC   | EQ     | 2750.0     | 2707.15   | 2729.95    | 2738.4      | 2745.6     | 2731.15          | 2795510               | 7620988084.3       | 2896               | 1623              |
+| 2021-08-17T18:30:00.000Z | HDFC   | EQ     | 2770.3     | 2698.0    | 2750.0     | 2710.75     | 2710.0     | 2738.4           | 2501410               | 6828940469.75      | 2896               | 1623              |
 
 </code></pre>
 <pre><code># Using full_data argument
-df = stocks.get_data(stockSymbol='RELIANCE', full_data=True)
-
-# Here ANGELONE isn't cross-checked as a correct scrip symbol
-df = stocks.get_data(stockSymbol='ANGELONE', full_data=True, check_stockSymbol=False)
+df = stocks.get_data(stock_symbol='RELIANCE', full_data=True)
 
 </code></pre></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def get_data(symbol, full_data=False, start_date=None, end_date=None, series=&#34;EQ&#34;):
+<pre><code class="python">def get_data(stock_symbol, full_data=False, start_date=None, end_date=None):
     &#34;&#34;&#34;
     Function to get un-adjusted data for stocks
 
     Args:
-        symbol (str): Scrip or Stock symbol in uppercase only
+        stock_symbol (str): Scrip or Stock symbol in uppercase only
         full_data (bool, optional): Parameter to get complete data since inception. Defaults to False.
-        start_date (datetime, optional): start date of date range in YYYY-MM-DD or DD-MM-YYYY format. Defaults to None.
-        end_date (datetime, optional): end date of date range in YYYY-MM-DD or DD-MM-YYYY format. Defaults to None.
-        series (str, optional): By default set to EQ, but can choose any series or All.
+        start_date ([input_type], optional): start date of date range in YYYY-MM-DD or DD-MM-YYYY format.
+        Defaults to None.
+        end_date ([input_type], optional): end date of date range in YYYY-MM-DD or DD-MM-YYYY format. Defaults to None.
 
     Raises:
-        ValueError: If no dates are provided/ Incorrect format of dates
-        ValueError: If start date &gt; end date
+        ValueError: If no dates are provided/ Incorrect format of dates/ If start date &gt; end date
 
     Returns:
         DataFrame: Data for stocksymbol for given date range
@@ -466,41 +187,35 @@ df = stocks.get_data(stockSymbol='ANGELONE', full_data=True, check_stockSymbol=F
     ##Example
     ```
     # Providing date range
-    df = stocks.get_data(stockSymbol=&#39;RELIANCE&#39;, start_date=&#39;15-9-2021&#39;, end_date=&#39;1-10-2021&#39;)
+    df = stocks.get_data(stock_symbol=&#34;RELIANCE&#34;, start_date=&#39;15-9-2021&#39;, end_date=&#39;1-10-2021&#39;)
     ```
     Output
     ```
-    | Date                | Symbol   | Series   |   Prev Close |   Open Price |   High Price |   Low Price |   Last Price |   Close Price |   Average Price |   Total Traded Quantity |    Turnover |   No. of Trades |   Deliverable Qty |   % Dly Qt to Traded Qty |
-    |:--------------------|:---------|:---------|-------------:|-------------:|-------------:|------------:|-------------:|--------------:|----------------:|------------------------:|------------:|----------------:|------------------:|-------------------------:|
-    | 2021-09-15 | RELIANCE | EQ       |      2368.45 |      2368.5  |      2395.75 |     2368.5  |      2379.4  |       2378.3  |         2380.39 |                 4186300 | 9.96505e+09 |          168130 |           2310144 |                    55.18 |
-    | 2021-09-16 | RELIANCE | EQ       |      2378.3  |      2381.55 |      2436.75 |     2367    |      2424    |       2428.2  |         2408.55 |                 6206657 | 1.49491e+10 |          214010 |           2473588 |                    39.85 |
-    | 2021-09-17 | RELIANCE | EQ       |      2428.2  |      2446    |      2455.85 |     2375.6  |      2387    |       2390.55 |         2410.13 |                16098099 | 3.87986e+10 |          278098 |           9460717 |                    58.77 |
-    | 2021-09-20 | RELIANCE | EQ       |      2390.55 |      2372.1  |      2418.35 |     2370    |      2391.85 |       2394.35 |         2398.57 |                 5436385 | 1.30396e+10 |          171011 |           3042705 |                    55.97 |
-    | 2021-09-21 | RELIANCE | EQ       |      2394.35 |      2405    |      2416.6  |     2384    |      2400    |       2404.7  |         2401.93 |                 4576111 | 1.09915e+10 |          149803 |           2365643 |                    51.7  |
-    | 2021-09-22 | RELIANCE | EQ       |      2404.7  |      2408    |      2442    |     2398.25 |      2430.8  |       2430.5  |         2426.47 |                 5074612 | 1.23134e+10 |          179090 |           2811116 |                    55.4  |
+    | Date                     | Symbol | Series | High Price | Low Price | Open Price | Close Price | Last Price | Prev Close Price | Total Traded Quantity | Total Traded Value | 52 Week High Price | 52 Week Low Price |
+    |--------------------------|--------|--------|------------|-----------|------------|-------------|------------|------------------|-----------------------|--------------------|--------------------|-------------------|
+    | 2021-08-11T18:30:00.000Z | HDFC   | EQ     | 2675.25    | 2646.6    | 2656.6     | 2668.75     | 2666.0     | 2658.5           | 1702479               | 4532596291.9       | 2896               | 1623              |
+    | 2021-08-12T18:30:00.000Z | HDFC   | EQ     | 2715.0     | 2662.0    | 2662.0     | 2704.15     | 2702.1     | 2668.75          | 3248615               | 8774705017.55      | 2896               | 1623              |
+    | 2021-08-15T18:30:00.000Z | HDFC   | EQ     | 2734.45    | 2693.8    | 2696.8     | 2731.15     | 2732.7     | 2704.15          | 2465887               | 6709996706.95      | 2896               | 1623              |
+    | 2021-08-16T18:30:00.000Z | HDFC   | EQ     | 2750.0     | 2707.15   | 2729.95    | 2738.4      | 2745.6     | 2731.15          | 2795510               | 7620988084.3       | 2896               | 1623              |
+    | 2021-08-17T18:30:00.000Z | HDFC   | EQ     | 2770.3     | 2698.0    | 2750.0     | 2710.75     | 2710.0     | 2738.4           | 2501410               | 6828940469.75      | 2896               | 1623              |
 
     ```
 
     ```
     # Using full_data argument
-    df = stocks.get_data(stockSymbol=&#39;RELIANCE&#39;, full_data=True)
-
-    # Here ANGELONE isn&#39;t cross-checked as a correct scrip symbol
-    df = stocks.get_data(stockSymbol=&#39;ANGELONE&#39;, full_data=True, check_stockSymbol=False)
+    df = stocks.get_data(stock_symbol=&#39;RELIANCE&#39;, full_data=True)
 
     ```
 
     &#34;&#34;&#34;
 
-    symbol = symbol.replace(&#39;&amp;&#39;, &#39;%26&#39;)
-    symbol_count = scrape_symbol(symbol)
+    stock_symbol = stock_symbol.replace(&#39;&amp;&#39;, &#39;%26&#39;)
 
     if full_data is True:
         parsed_start_date = datetime.datetime.strptime(&#39;1-1-1992&#39;, &#34;%d-%m-%Y&#34;)
         parsed_end_date = datetime.datetime.today()
 
     else:
-
         if start_date is None or end_date is None:
             raise ValueError(&#34;Provide start and end date.&#34;)
 
@@ -510,8 +225,7 @@ df = stocks.get_data(stockSymbol='ANGELONE', full_data=True, check_stockSymbol=F
         if parsed_start_date &gt; parsed_end_date:
             raise ValueError(&#34;Starting date is greater than end date.&#34;)
 
-    result = scrape_data(
-        parsed_start_date, parsed_end_date, &#39;stock&#39;, stock_symbol=symbol, symbol_count=symbol_count, series=series)
+    result = scrape_data(start_date=parsed_start_date, end_date=parsed_end_date, input_type=&#39;stock&#39;, name=stock_symbol)
     return result</code></pre>
 </details>
 </dd>
@@ -556,8 +270,6 @@ df = stocks.get_data(stockSymbol='ANGELONE', full_data=True, check_stockSymbol=F
 </li>
 <li><h3><a href="#header-functions">Functions</a></h3>
 <ul class="">
-<li><code><a title="NSEDownload.stocks.get_adjusted_data" href="#NSEDownload.stocks.get_adjusted_data">get_adjusted_data</a></code></li>
-<li><code><a title="NSEDownload.stocks.get_adjusted_stock" href="#NSEDownload.stocks.get_adjusted_stock">get_adjusted_stock</a></code></li>
 <li><code><a title="NSEDownload.stocks.get_data" href="#NSEDownload.stocks.get_data">get_data</a></code></li>
 <li><code><a title="NSEDownload.stocks.parse_date" href="#NSEDownload.stocks.parse_date">parse_date</a></code></li>
 </ul>
