@@ -26,202 +26,136 @@
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">import datetime
+<pre><code class="python">from concurrent.futures import ALL_COMPLETED
+
 import json
+import datetime
+import requests
 import math
 import pandas as pd
-import re
-import requests
-import threading
-from bs4 import BeautifulSoup
-from io import StringIO
-from requests.adapters import HTTPAdapter, Retry
+import urllib.parse
+import concurrent.futures
+import logging
 
-from NSEDownload.static_data import get_headers, get_adjusted_headers, get_symbol_mapping_url, get_company_events_url, \
-    get_symbol_count_url
+HISTORICAL_DATA_URL = &#39;https://www.nseindia.com/api/historical/cm/equity?series=[%22EQ%22]&amp;&#39;
+BASE_URL = &#39;https://www.nseindia.com/&#39;
+CORPORATE_EVENTS_URL = &#39;https://www.nseindia.com/api/corporate-announcements?&#39;
 
-interim_dfs = []
+logging.basicConfig(level=logging.INFO, format=&#39;%(asctime)s %(levelname)s:%(message)s&#39;)
 
 
-def process_window(stage, url):
-    response = make_get_request(url)
-    try:
-        interim_dfs[stage] = process_html_response(response)
-    except AttributeError:
-        pass
+def get_headers():
+    return {
+        &#34;Host&#34;: &#34;www1.nseindia.com&#34;,
+        &#34;User-Agent&#34;: &#34;Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:84.0) Gecko/20100101 Firefox/84.0&#34;,
+        &#34;Accept&#34;: &#34;*/*&#34;,
+        &#34;Accept-Language&#34;: &#34;en-US,en;q=0.5&#34;,
+        &#34;Accept-Encoding&#34;: &#34;gzip, deflate, br&#34;,
+        &#34;X-Requested-With&#34;: &#34;XMLHttpRequest&#34;,
+        &#34;Referer&#34;: &#34;https://www1.nseindia.com/products/content/equities/equities/eq_security.htm&#34;,
+        &#34;Access-Control-Allow-Origin&#34;: &#34;*&#34;,
+        &#34;Access-Control-Allow-Methods&#34;: &#34;GET,POST,PUT,DELETE,OPTIONS&#34;,
+        &#34;Access-Control-Allow-Headers&#34;: &#34;Content-Type, Access-Control-Allow-Headers, Authorization, X-Requested-With&#34;,
+        &#39;Content-Type&#39;: &#39;application/start_date-www-form-urlencoded; charset=UTF-8&#39;
+    }
 
 
-def process_html_response(response):
-    page_content = BeautifulSoup(response, &#34;html.parser&#34;)
-    lines = page_content.find(id=&#34;csvContentDiv&#34;).get_text()
-    lines = lines.replace(&#39;:&#39;, &#34;, \n&#34;)
-    df = pd.read_csv(StringIO(lines))
-    df.set_index(&#34;Date&#34;, inplace=True)
-    df = df[::-1]
-    return df
+def get_adjusted_headers():
+    return {
+        &#39;Host&#39;: &#39;www.nseindia.com&#39;,
+        &#39;User-Agent&#39;: &#39;Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:85.0) Gecko/20100101 Firefox/85.0&#39;,
+        &#39;Accept&#39;: &#39;*/*&#39;,
+        &#39;Accept-Language&#39;: &#39;en-US,en;q=0.5&#39;,
+        &#39;Accept-Encoding&#39;: &#39;gzip, deflate, br&#39;,
+        &#39;X-Requested-With&#39;: &#39;XMLHttpRequest&#39;,
+        &#39;DNT&#39;: &#39;1&#39;,
+        &#39;Connection&#39;: &#39;keep-alive&#39;,
+    }
 
 
-def make_get_request(url):
-    session = requests.Session()
-    retries = Retry(total=5, backoff_factor=0.1, status_forcelist=[500, 502, 503, 504])
-    session.mount(&#39;https://&#39;, HTTPAdapter(max_retries=retries))
-    response = session.get(url, timeout=10, headers=get_headers())
-    session.close()
-    return response.content
+def fetch_cookies():
+    response = requests.get(BASE_URL, timeout=30, headers=get_adjusted_headers())
+    if response.status_code != requests.codes.ok:
+        logging.error(&#34;Fetched url: %s with status code: %s and response from server: %s&#34; % (
+            BASE_URL, response.status_code, response.content))
+        raise ValueError(&#34;Please try again in a minute.&#34;)
+    return response.cookies.get_dict()
 
 
-def scrape_data(start_date, end_date, request_type,
-                index_name=None, url=None, stock_symbol=None, symbol_count=None, series=&#34;EQ&#34;):
-    &#34;&#34;&#34;Called by stocks and indices to scrape data. Create threads for different requests, parses data, combines them and returns dataframe
+def fetch_url(url, cookies):
+    &#34;&#34;&#34;
+        This is the function call made by each thread. A get request is made for given start and end date, response is
+        parsed and dataframe is returned
+    &#34;&#34;&#34;
+
+    response = requests.get(url, timeout=30, headers=get_adjusted_headers(), cookies=cookies)
+    if response.status_code == requests.codes.ok:
+        json_response = json.loads(response.content)
+        return pd.DataFrame.from_dict(json_response[&#39;data&#39;])
+    else:
+        logging.error(&#34;Fetched url: %s with status code: %s and response from server: %s&#34; % (
+            BASE_URL, response.status_code, response.content))
+        raise ValueError(&#34;Please try again in a minute.&#34;)
+
+
+def scrape_data(start_date, end_date, input_type, name):
+    &#34;&#34;&#34;
+    Called by stocks and indices to scrape data.
+    Create threads for different requests, parses data, combines them and returns dataframe
 
     Args:
-        start_date (datetime): start date
-        end_date (datetime): end date
-        request_type (str): Either &#39;stock&#39; or &#39;index&#39;
-        index_name (str, optional): If type index then this gives name of index. Defaults to None.
-        url (str, optional): URL to scrape from. Defaults to None.
-        stock_symbol (str, optional): If type stock then this gives stock symbol. Defaults to None.
-        symbol_count (str, optional): Intermediate variable needed for scraping. Defaults to None.
-        series(str, optional): By default set to EQ, but can choose any series or All
+        start_date (datetime.datetime): start date
+        end_date (datetime.datetime): end date
+        input_type (str): Either &#39;stock&#39; or &#39;index&#39;
+        name (str, optional): stock symbol or index name. Defaults to None.
 
     Returns:
         Pandas DataFrame: df containing data for stocksymbol for provided date range
     &#34;&#34;&#34;
 
-    total_stages = math.ceil((end_date - start_date).days / 365)
-    global interim_dfs
-    interim_dfs = [pd.DataFrame()] * total_stages
+    stage, total_stages = 0, math.ceil((end_date - start_date).days / 50)
+    threads, url_list = [], []
+    cookies = fetch_cookies()
 
-    threads = []
     for stage in range(total_stages):
-
-        window_start_date = start_date + stage * datetime.timedelta(days=365)
-        window_end_date = window_start_date + datetime.timedelta(days=364)
-
-        if window_start_date &gt; end_date:
-            break
-
-        if window_end_date &gt; end_date:
-            window_end_date = end_date
-
-        if request_type == &#39;stock&#39;:
-            final_url = get_symbol_mapping_url() + &#39;?symbol=&#39; + stock_symbol + &#39;&amp;segmentLink=3&amp;symbolCount&#39; \
-                        + symbol_count + &#34;&amp;series=&#34; + series + &#34;&amp;dateRange=+&amp;fromDate=&#34; + \
-                        window_start_date.strftime(
-                            &#34;%d-%m-%Y&#34;) + &#34;&amp;toDate=&#34; + window_end_date.strftime(
-                &#34;%d-%m-%Y&#34;) + &#34;&amp;dataType=PRICEVOLUMEDELIVERABLE&#34;
-
-        if request_type == &#39;index&#39;:
-            final_url = url + &#39;?indexType=&#39; + index_name + \
-                        &#39;&amp;fromDate=&#39; + \
-                        window_start_date.strftime(&#34;%d-%m-%Y&#34;) + &#39;&amp;toDate=&#39; + \
-                        window_end_date.strftime(&#34;%d-%m-%Y&#34;)
-
-        thread = threading.Thread(target=process_window, args=[stage, final_url])
-        threads.append(thread)
-        thread.start()
-
-    for thread in threads:
-        thread.join()
+        fetch_end_date = end_date - stage * datetime.timedelta(days=50)
+        fetch_start_date = fetch_end_date - datetime.timedelta(days=50)
+        if input_type == &#39;stock&#39;:
+            params = {&#39;symbol&#39;: name,
+                      &#39;from&#39;: fetch_start_date.strftime(&#34;%d-%m-%Y&#34;),
+                      &#39;to&#39;: fetch_end_date.strftime(&#34;%d-%m-%Y&#34;)}
+            url = HISTORICAL_DATA_URL + urllib.parse.urlencode(params)
+            url_list.append(url)
 
     result = pd.DataFrame()
-    for stage in range(total_stages):
-        result = pd.concat([result, interim_dfs[stage]])
-    result.index = pd.to_datetime(result.index)
+    with concurrent.futures.ThreadPoolExecutor(max_workers=5) as executor:
+        future_to_url = {executor.submit(fetch_url, url, cookies): url for url in url_list}
+        concurrent.futures.wait(future_to_url, return_when=ALL_COMPLETED)
+        for future in concurrent.futures.as_completed(future_to_url):
+            url = future_to_url[future]
+            try:
+                df = future.result()
+                result = pd.concat([result, df])
+            except Exception as exc:
+                logging.error(&#39;%r generated an exception: %s. Please try again later.&#39; % (url, exc))
+                raise exc
+
+    return format_dataframe_result(result)
+
+
+def format_dataframe_result(result):
+    columns_required = [&#34;TIMESTAMP&#34;, &#34;CH_SYMBOL&#34;, &#34;CH_SERIES&#34;, &#34;CH_TRADE_HIGH_PRICE&#34;,
+                        &#34;CH_TRADE_LOW_PRICE&#34;, &#34;CH_OPENING_PRICE&#34;, &#34;CH_CLOSING_PRICE&#34;, &#34;CH_LAST_TRADED_PRICE&#34;,
+                        &#34;CH_PREVIOUS_CLS_PRICE&#34;, &#34;CH_TOT_TRADED_QTY&#34;, &#34;CH_TOT_TRADED_VAL&#34;, &#34;CH_52WEEK_HIGH_PRICE&#34;,
+                        &#34;CH_52WEEK_LOW_PRICE&#34;]
+    result = result[columns_required]
+    result = result.set_axis(
+        [&#39;Date&#39;, &#39;Symbol&#39;, &#39;Series&#39;, &#39;High Price&#39;, &#39;Low Price&#39;, &#39;Open Price&#39;, &#39;Close Price&#39;, &#39;Last Price&#39;,
+         &#39;Prev Close Price&#39;, &#39;Total Traded Quantity&#39;, &#39;Total Traded Value&#39;, &#39;52 Week High Price&#39;,
+         &#39;52 Week Low Price&#39;], axis=1)
+    result.set_index(&#39;Date&#39;, inplace=True)
     result.sort_index(inplace=True)
-
-    return result
-
-
-def add_quotes_to_field(match):
-    match = match.group()
-    return match[0] + &#39;&#34;&#39; + match[1:-1] + &#39;&#34;:&#39;
-
-
-def scrape_bonus_splits(symbol):
-    &#34;&#34;&#34;Scrapes for bonuses and splits
-
-    Args:
-        symbol (str): Stock Symbol
-
-    Returns:
-        list: Returns list of dates of event and ratio of original and new price
-    &#34;&#34;&#34;
-
-    event_dates, event_ratio = [], []
-    url_more_than_24 = get_company_events_url() + symbol + \
-                       &#34;&amp;Industry=&amp;ExDt=More%20than%2024%20&#34; \
-                       &#34;Months&amp;exDt=More%20than%2024%20Months&#34; \
-                       &#34;&amp;recordDt=&amp;bcstartDt=&amp;industry&#34; \
-                       &#34;=&amp;CAType=&#34;
-
-    url_last_24 = get_company_events_url() + symbol + \
-                  &#34;&amp;Industry=&amp;ExDt=Last%2012%20Months&#34; \
-                  &#34;&amp;exDt=Last%2012%20Months&amp;&#34; \
-                  &#34;&amp;recordDt=&amp;bcstartDt=&amp;industry&#34; \
-                  &#34;=&amp;CAType=&#34;
-
-    for url in [url_more_than_24, url_last_24]:
-
-        response = requests.get(url, timeout=60, headers=get_adjusted_headers())
-        page_content = &#34;{&#34; + BeautifulSoup(response.content, &#34;html.parser&#34;).text.replace(&#39;\n&#39;, &#39;&#39;).replace(&#39;\t&#39;, &#39;&#39;)[16:]
-        json_input = re.sub(r&#39;[{,][a-zA-Z]+:&#39;, add_quotes_to_field, page_content)
-        json_content = json.loads(json_input)
-        corporate_actions = json_content[&#34;rows&#34;]
-
-        for row in corporate_actions:
-
-            subject = row[&#34;sub&#34;].lower()
-            date = row[&#34;exDt&#34;]
-            if date not in event_dates:
-
-                # Scraping for Splits
-                if subject.find(&#34;split&#34;) != -1 or subject.find(&#34;division&#34;) != -1:
-                    num = re.findall(&#39;\d+&#39;, subject)
-                    if len(num) &lt; 2:
-                        continue
-                    event_ratio.append(int(num[0]) / int(num[1]))
-                    event_dates.append(date)
-                    print(&#34;Split event on: &#34; + date)
-
-                # Scraping for Bonus
-                if subject.find(&#34;bonus&#34;) != -1:
-                    num = re.findall(&#39;\d+&#39;, subject)
-                    if len(num) &lt; 2:
-                        continue
-                    event_ratio.append((int(num[0]) + int(num[1])) / int(num[1]))
-                    event_dates.append(date)
-                    print(&#34;Bonus event on: &#34; + date)
-
-    return [event_ratio, event_dates]
-
-
-def scrape_symbol(symbol):
-    &#34;&#34;&#34;Scraping intermediate variable symbol Count
-
-    Args:
-        symbol (str): Stock Symbol
-
-    Raises:
-        SystemExit: Exit on any exception to request
-
-    Returns:
-        str: Symbol Count
-    &#34;&#34;&#34;
-
-    try:
-        response = requests.post(get_symbol_count_url(),
-                                 data={&#34;symbol&#34;: symbol},
-                                 headers=get_headers(),
-                                 timeout=60)
-
-    except requests.exceptions.RequestException as e:
-        raise SystemExit(e)
-
-    if response.status_code != requests.codes.ok:
-        response.raise_for_status()
-
-    return str(BeautifulSoup(response.content, &#34;html.parser&#34;))</code></pre>
+    return result</code></pre>
 </details>
 </section>
 <section>
@@ -231,8 +165,8 @@ def scrape_symbol(symbol):
 <section>
 <h2 class="section-title" id="header-functions">Functions</h2>
 <dl>
-<dt id="NSEDownload.scraper.add_quotes_to_field"><code class="name flex">
-<span>def <span class="ident">add_quotes_to_field</span></span>(<span>match)</span>
+<dt id="NSEDownload.scraper.fetch_cookies"><code class="name flex">
+<span>def <span class="ident">fetch_cookies</span></span>(<span>)</span>
 </code></dt>
 <dd>
 <div class="desc"></div>
@@ -240,165 +174,129 @@ def scrape_symbol(symbol):
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def add_quotes_to_field(match):
-    match = match.group()
-    return match[0] + &#39;&#34;&#39; + match[1:-1] + &#39;&#34;:&#39;</code></pre>
+<pre><code class="python">def fetch_cookies():
+    response = requests.get(BASE_URL, timeout=30, headers=get_adjusted_headers())
+    if response.status_code != requests.codes.ok:
+        logging.error(&#34;Fetched url: %s with status code: %s and response from server: %s&#34; % (
+            BASE_URL, response.status_code, response.content))
+        raise ValueError(&#34;Please try again in a minute.&#34;)
+    return response.cookies.get_dict()</code></pre>
 </details>
 </dd>
-<dt id="NSEDownload.scraper.make_get_request"><code class="name flex">
-<span>def <span class="ident">make_get_request</span></span>(<span>url)</span>
+<dt id="NSEDownload.scraper.fetch_url"><code class="name flex">
+<span>def <span class="ident">fetch_url</span></span>(<span>url, cookies)</span>
 </code></dt>
 <dd>
-<div class="desc"></div>
+<div class="desc"><p>This is the function call made by each thread. A get request is made for given start and end date, response is
+parsed and dataframe is returned</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def make_get_request(url):
-    session = requests.Session()
-    retries = Retry(total=5, backoff_factor=0.1, status_forcelist=[500, 502, 503, 504])
-    session.mount(&#39;https://&#39;, HTTPAdapter(max_retries=retries))
-    response = session.get(url, timeout=10, headers=get_headers())
-    session.close()
-    return response.content</code></pre>
-</details>
-</dd>
-<dt id="NSEDownload.scraper.process_html_response"><code class="name flex">
-<span>def <span class="ident">process_html_response</span></span>(<span>response)</span>
-</code></dt>
-<dd>
-<div class="desc"></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def process_html_response(response):
-    page_content = BeautifulSoup(response, &#34;html.parser&#34;)
-    lines = page_content.find(id=&#34;csvContentDiv&#34;).get_text()
-    lines = lines.replace(&#39;:&#39;, &#34;, \n&#34;)
-    df = pd.read_csv(StringIO(lines))
-    df.set_index(&#34;Date&#34;, inplace=True)
-    df = df[::-1]
-    return df</code></pre>
-</details>
-</dd>
-<dt id="NSEDownload.scraper.process_window"><code class="name flex">
-<span>def <span class="ident">process_window</span></span>(<span>stage, url)</span>
-</code></dt>
-<dd>
-<div class="desc"></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def process_window(stage, url):
-    response = make_get_request(url)
-    try:
-        interim_dfs[stage] = process_html_response(response)
-    except AttributeError:
-        pass</code></pre>
-</details>
-</dd>
-<dt id="NSEDownload.scraper.scrape_bonus_splits"><code class="name flex">
-<span>def <span class="ident">scrape_bonus_splits</span></span>(<span>symbol)</span>
-</code></dt>
-<dd>
-<div class="desc"><p>Scrapes for bonuses and splits</p>
-<h2 id="args">Args</h2>
-<dl>
-<dt><strong><code>symbol</code></strong> :&ensp;<code>str</code></dt>
-<dd>Stock Symbol</dd>
-</dl>
-<h2 id="returns">Returns</h2>
-<dl>
-<dt><code>list</code></dt>
-<dd>Returns list of dates of event and ratio of original and new price</dd>
-</dl></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def scrape_bonus_splits(symbol):
-    &#34;&#34;&#34;Scrapes for bonuses and splits
-
-    Args:
-        symbol (str): Stock Symbol
-
-    Returns:
-        list: Returns list of dates of event and ratio of original and new price
+<pre><code class="python">def fetch_url(url, cookies):
+    &#34;&#34;&#34;
+        This is the function call made by each thread. A get request is made for given start and end date, response is
+        parsed and dataframe is returned
     &#34;&#34;&#34;
 
-    event_dates, event_ratio = [], []
-    url_more_than_24 = get_company_events_url() + symbol + \
-                       &#34;&amp;Industry=&amp;ExDt=More%20than%2024%20&#34; \
-                       &#34;Months&amp;exDt=More%20than%2024%20Months&#34; \
-                       &#34;&amp;recordDt=&amp;bcstartDt=&amp;industry&#34; \
-                       &#34;=&amp;CAType=&#34;
-
-    url_last_24 = get_company_events_url() + symbol + \
-                  &#34;&amp;Industry=&amp;ExDt=Last%2012%20Months&#34; \
-                  &#34;&amp;exDt=Last%2012%20Months&amp;&#34; \
-                  &#34;&amp;recordDt=&amp;bcstartDt=&amp;industry&#34; \
-                  &#34;=&amp;CAType=&#34;
-
-    for url in [url_more_than_24, url_last_24]:
-
-        response = requests.get(url, timeout=60, headers=get_adjusted_headers())
-        page_content = &#34;{&#34; + BeautifulSoup(response.content, &#34;html.parser&#34;).text.replace(&#39;\n&#39;, &#39;&#39;).replace(&#39;\t&#39;, &#39;&#39;)[16:]
-        json_input = re.sub(r&#39;[{,][a-zA-Z]+:&#39;, add_quotes_to_field, page_content)
-        json_content = json.loads(json_input)
-        corporate_actions = json_content[&#34;rows&#34;]
-
-        for row in corporate_actions:
-
-            subject = row[&#34;sub&#34;].lower()
-            date = row[&#34;exDt&#34;]
-            if date not in event_dates:
-
-                # Scraping for Splits
-                if subject.find(&#34;split&#34;) != -1 or subject.find(&#34;division&#34;) != -1:
-                    num = re.findall(&#39;\d+&#39;, subject)
-                    if len(num) &lt; 2:
-                        continue
-                    event_ratio.append(int(num[0]) / int(num[1]))
-                    event_dates.append(date)
-                    print(&#34;Split event on: &#34; + date)
-
-                # Scraping for Bonus
-                if subject.find(&#34;bonus&#34;) != -1:
-                    num = re.findall(&#39;\d+&#39;, subject)
-                    if len(num) &lt; 2:
-                        continue
-                    event_ratio.append((int(num[0]) + int(num[1])) / int(num[1]))
-                    event_dates.append(date)
-                    print(&#34;Bonus event on: &#34; + date)
-
-    return [event_ratio, event_dates]</code></pre>
+    response = requests.get(url, timeout=30, headers=get_adjusted_headers(), cookies=cookies)
+    if response.status_code == requests.codes.ok:
+        json_response = json.loads(response.content)
+        return pd.DataFrame.from_dict(json_response[&#39;data&#39;])
+    else:
+        logging.error(&#34;Fetched url: %s with status code: %s and response from server: %s&#34; % (
+            BASE_URL, response.status_code, response.content))
+        raise ValueError(&#34;Please try again in a minute.&#34;)</code></pre>
+</details>
+</dd>
+<dt id="NSEDownload.scraper.format_dataframe_result"><code class="name flex">
+<span>def <span class="ident">format_dataframe_result</span></span>(<span>result)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def format_dataframe_result(result):
+    columns_required = [&#34;TIMESTAMP&#34;, &#34;CH_SYMBOL&#34;, &#34;CH_SERIES&#34;, &#34;CH_TRADE_HIGH_PRICE&#34;,
+                        &#34;CH_TRADE_LOW_PRICE&#34;, &#34;CH_OPENING_PRICE&#34;, &#34;CH_CLOSING_PRICE&#34;, &#34;CH_LAST_TRADED_PRICE&#34;,
+                        &#34;CH_PREVIOUS_CLS_PRICE&#34;, &#34;CH_TOT_TRADED_QTY&#34;, &#34;CH_TOT_TRADED_VAL&#34;, &#34;CH_52WEEK_HIGH_PRICE&#34;,
+                        &#34;CH_52WEEK_LOW_PRICE&#34;]
+    result = result[columns_required]
+    result = result.set_axis(
+        [&#39;Date&#39;, &#39;Symbol&#39;, &#39;Series&#39;, &#39;High Price&#39;, &#39;Low Price&#39;, &#39;Open Price&#39;, &#39;Close Price&#39;, &#39;Last Price&#39;,
+         &#39;Prev Close Price&#39;, &#39;Total Traded Quantity&#39;, &#39;Total Traded Value&#39;, &#39;52 Week High Price&#39;,
+         &#39;52 Week Low Price&#39;], axis=1)
+    result.set_index(&#39;Date&#39;, inplace=True)
+    result.sort_index(inplace=True)
+    return result</code></pre>
+</details>
+</dd>
+<dt id="NSEDownload.scraper.get_adjusted_headers"><code class="name flex">
+<span>def <span class="ident">get_adjusted_headers</span></span>(<span>)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def get_adjusted_headers():
+    return {
+        &#39;Host&#39;: &#39;www.nseindia.com&#39;,
+        &#39;User-Agent&#39;: &#39;Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:85.0) Gecko/20100101 Firefox/85.0&#39;,
+        &#39;Accept&#39;: &#39;*/*&#39;,
+        &#39;Accept-Language&#39;: &#39;en-US,en;q=0.5&#39;,
+        &#39;Accept-Encoding&#39;: &#39;gzip, deflate, br&#39;,
+        &#39;X-Requested-With&#39;: &#39;XMLHttpRequest&#39;,
+        &#39;DNT&#39;: &#39;1&#39;,
+        &#39;Connection&#39;: &#39;keep-alive&#39;,
+    }</code></pre>
+</details>
+</dd>
+<dt id="NSEDownload.scraper.get_headers"><code class="name flex">
+<span>def <span class="ident">get_headers</span></span>(<span>)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def get_headers():
+    return {
+        &#34;Host&#34;: &#34;www1.nseindia.com&#34;,
+        &#34;User-Agent&#34;: &#34;Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:84.0) Gecko/20100101 Firefox/84.0&#34;,
+        &#34;Accept&#34;: &#34;*/*&#34;,
+        &#34;Accept-Language&#34;: &#34;en-US,en;q=0.5&#34;,
+        &#34;Accept-Encoding&#34;: &#34;gzip, deflate, br&#34;,
+        &#34;X-Requested-With&#34;: &#34;XMLHttpRequest&#34;,
+        &#34;Referer&#34;: &#34;https://www1.nseindia.com/products/content/equities/equities/eq_security.htm&#34;,
+        &#34;Access-Control-Allow-Origin&#34;: &#34;*&#34;,
+        &#34;Access-Control-Allow-Methods&#34;: &#34;GET,POST,PUT,DELETE,OPTIONS&#34;,
+        &#34;Access-Control-Allow-Headers&#34;: &#34;Content-Type, Access-Control-Allow-Headers, Authorization, X-Requested-With&#34;,
+        &#39;Content-Type&#39;: &#39;application/start_date-www-form-urlencoded; charset=UTF-8&#39;
+    }</code></pre>
 </details>
 </dd>
 <dt id="NSEDownload.scraper.scrape_data"><code class="name flex">
-<span>def <span class="ident">scrape_data</span></span>(<span>start_date, end_date, request_type, index_name=None, url=None, stock_symbol=None, symbol_count=None, series='EQ')</span>
+<span>def <span class="ident">scrape_data</span></span>(<span>start_date, end_date, input_type, name)</span>
 </code></dt>
 <dd>
-<div class="desc"><p>Called by stocks and indices to scrape data. Create threads for different requests, parses data, combines them and returns dataframe</p>
+<div class="desc"><p>Called by stocks and indices to scrape data.
+Create threads for different requests, parses data, combines them and returns dataframe</p>
 <h2 id="args">Args</h2>
 <dl>
-<dt><strong><code>start_date</code></strong> :&ensp;<code>datetime</code></dt>
+<dt><strong><code>start_date</code></strong> :&ensp;<code>datetime.datetime</code></dt>
 <dd>start date</dd>
-<dt><strong><code>end_date</code></strong> :&ensp;<code>datetime</code></dt>
+<dt><strong><code>end_date</code></strong> :&ensp;<code>datetime.datetime</code></dt>
 <dd>end date</dd>
-<dt><strong><code>request_type</code></strong> :&ensp;<code>str</code></dt>
+<dt><strong><code>input_type</code></strong> :&ensp;<code>str</code></dt>
 <dd>Either 'stock' or 'index'</dd>
-<dt><strong><code>index_name</code></strong> :&ensp;<code>str</code>, optional</dt>
-<dd>If type index then this gives name of index. Defaults to None.</dd>
-<dt><strong><code>url</code></strong> :&ensp;<code>str</code>, optional</dt>
-<dd>URL to scrape from. Defaults to None.</dd>
-<dt><strong><code>stock_symbol</code></strong> :&ensp;<code>str</code>, optional</dt>
-<dd>If type stock then this gives stock symbol. Defaults to None.</dd>
-<dt><strong><code>symbol_count</code></strong> :&ensp;<code>str</code>, optional</dt>
-<dd>Intermediate variable needed for scraping. Defaults to None.</dd>
+<dt><strong><code>name</code></strong> :&ensp;<code>str</code>, optional</dt>
+<dd>stock symbol or index name. Defaults to None.</dd>
 </dl>
-<p>series(str, optional): By default set to EQ, but can choose any series or All</p>
 <h2 id="returns">Returns</h2>
 <dl>
 <dt><code>Pandas DataFrame</code></dt>
@@ -408,119 +306,49 @@ def scrape_symbol(symbol):
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def scrape_data(start_date, end_date, request_type,
-                index_name=None, url=None, stock_symbol=None, symbol_count=None, series=&#34;EQ&#34;):
-    &#34;&#34;&#34;Called by stocks and indices to scrape data. Create threads for different requests, parses data, combines them and returns dataframe
+<pre><code class="python">def scrape_data(start_date, end_date, input_type, name):
+    &#34;&#34;&#34;
+    Called by stocks and indices to scrape data.
+    Create threads for different requests, parses data, combines them and returns dataframe
 
     Args:
-        start_date (datetime): start date
-        end_date (datetime): end date
-        request_type (str): Either &#39;stock&#39; or &#39;index&#39;
-        index_name (str, optional): If type index then this gives name of index. Defaults to None.
-        url (str, optional): URL to scrape from. Defaults to None.
-        stock_symbol (str, optional): If type stock then this gives stock symbol. Defaults to None.
-        symbol_count (str, optional): Intermediate variable needed for scraping. Defaults to None.
-        series(str, optional): By default set to EQ, but can choose any series or All
+        start_date (datetime.datetime): start date
+        end_date (datetime.datetime): end date
+        input_type (str): Either &#39;stock&#39; or &#39;index&#39;
+        name (str, optional): stock symbol or index name. Defaults to None.
 
     Returns:
         Pandas DataFrame: df containing data for stocksymbol for provided date range
     &#34;&#34;&#34;
 
-    total_stages = math.ceil((end_date - start_date).days / 365)
-    global interim_dfs
-    interim_dfs = [pd.DataFrame()] * total_stages
+    stage, total_stages = 0, math.ceil((end_date - start_date).days / 50)
+    threads, url_list = [], []
+    cookies = fetch_cookies()
 
-    threads = []
     for stage in range(total_stages):
-
-        window_start_date = start_date + stage * datetime.timedelta(days=365)
-        window_end_date = window_start_date + datetime.timedelta(days=364)
-
-        if window_start_date &gt; end_date:
-            break
-
-        if window_end_date &gt; end_date:
-            window_end_date = end_date
-
-        if request_type == &#39;stock&#39;:
-            final_url = get_symbol_mapping_url() + &#39;?symbol=&#39; + stock_symbol + &#39;&amp;segmentLink=3&amp;symbolCount&#39; \
-                        + symbol_count + &#34;&amp;series=&#34; + series + &#34;&amp;dateRange=+&amp;fromDate=&#34; + \
-                        window_start_date.strftime(
-                            &#34;%d-%m-%Y&#34;) + &#34;&amp;toDate=&#34; + window_end_date.strftime(
-                &#34;%d-%m-%Y&#34;) + &#34;&amp;dataType=PRICEVOLUMEDELIVERABLE&#34;
-
-        if request_type == &#39;index&#39;:
-            final_url = url + &#39;?indexType=&#39; + index_name + \
-                        &#39;&amp;fromDate=&#39; + \
-                        window_start_date.strftime(&#34;%d-%m-%Y&#34;) + &#39;&amp;toDate=&#39; + \
-                        window_end_date.strftime(&#34;%d-%m-%Y&#34;)
-
-        thread = threading.Thread(target=process_window, args=[stage, final_url])
-        threads.append(thread)
-        thread.start()
-
-    for thread in threads:
-        thread.join()
+        fetch_end_date = end_date - stage * datetime.timedelta(days=50)
+        fetch_start_date = fetch_end_date - datetime.timedelta(days=50)
+        if input_type == &#39;stock&#39;:
+            params = {&#39;symbol&#39;: name,
+                      &#39;from&#39;: fetch_start_date.strftime(&#34;%d-%m-%Y&#34;),
+                      &#39;to&#39;: fetch_end_date.strftime(&#34;%d-%m-%Y&#34;)}
+            url = HISTORICAL_DATA_URL + urllib.parse.urlencode(params)
+            url_list.append(url)
 
     result = pd.DataFrame()
-    for stage in range(total_stages):
-        result = pd.concat([result, interim_dfs[stage]])
-    result.index = pd.to_datetime(result.index)
-    result.sort_index(inplace=True)
+    with concurrent.futures.ThreadPoolExecutor(max_workers=5) as executor:
+        future_to_url = {executor.submit(fetch_url, url, cookies): url for url in url_list}
+        concurrent.futures.wait(future_to_url, return_when=ALL_COMPLETED)
+        for future in concurrent.futures.as_completed(future_to_url):
+            url = future_to_url[future]
+            try:
+                df = future.result()
+                result = pd.concat([result, df])
+            except Exception as exc:
+                logging.error(&#39;%r generated an exception: %s. Please try again later.&#39; % (url, exc))
+                raise exc
 
-    return result</code></pre>
-</details>
-</dd>
-<dt id="NSEDownload.scraper.scrape_symbol"><code class="name flex">
-<span>def <span class="ident">scrape_symbol</span></span>(<span>symbol)</span>
-</code></dt>
-<dd>
-<div class="desc"><p>Scraping intermediate variable symbol Count</p>
-<h2 id="args">Args</h2>
-<dl>
-<dt><strong><code>symbol</code></strong> :&ensp;<code>str</code></dt>
-<dd>Stock Symbol</dd>
-</dl>
-<h2 id="raises">Raises</h2>
-<dl>
-<dt><code>SystemExit</code></dt>
-<dd>Exit on any exception to request</dd>
-</dl>
-<h2 id="returns">Returns</h2>
-<dl>
-<dt><code>str</code></dt>
-<dd>Symbol Count</dd>
-</dl></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def scrape_symbol(symbol):
-    &#34;&#34;&#34;Scraping intermediate variable symbol Count
-
-    Args:
-        symbol (str): Stock Symbol
-
-    Raises:
-        SystemExit: Exit on any exception to request
-
-    Returns:
-        str: Symbol Count
-    &#34;&#34;&#34;
-
-    try:
-        response = requests.post(get_symbol_count_url(),
-                                 data={&#34;symbol&#34;: symbol},
-                                 headers=get_headers(),
-                                 timeout=60)
-
-    except requests.exceptions.RequestException as e:
-        raise SystemExit(e)
-
-    if response.status_code != requests.codes.ok:
-        response.raise_for_status()
-
-    return str(BeautifulSoup(response.content, &#34;html.parser&#34;))</code></pre>
+    return format_dataframe_result(result)</code></pre>
 </details>
 </dd>
 </dl>
@@ -541,13 +369,12 @@ def scrape_symbol(symbol):
 </li>
 <li><h3><a href="#header-functions">Functions</a></h3>
 <ul class="">
-<li><code><a title="NSEDownload.scraper.add_quotes_to_field" href="#NSEDownload.scraper.add_quotes_to_field">add_quotes_to_field</a></code></li>
-<li><code><a title="NSEDownload.scraper.make_get_request" href="#NSEDownload.scraper.make_get_request">make_get_request</a></code></li>
-<li><code><a title="NSEDownload.scraper.process_html_response" href="#NSEDownload.scraper.process_html_response">process_html_response</a></code></li>
-<li><code><a title="NSEDownload.scraper.process_window" href="#NSEDownload.scraper.process_window">process_window</a></code></li>
-<li><code><a title="NSEDownload.scraper.scrape_bonus_splits" href="#NSEDownload.scraper.scrape_bonus_splits">scrape_bonus_splits</a></code></li>
+<li><code><a title="NSEDownload.scraper.fetch_cookies" href="#NSEDownload.scraper.fetch_cookies">fetch_cookies</a></code></li>
+<li><code><a title="NSEDownload.scraper.fetch_url" href="#NSEDownload.scraper.fetch_url">fetch_url</a></code></li>
+<li><code><a title="NSEDownload.scraper.format_dataframe_result" href="#NSEDownload.scraper.format_dataframe_result">format_dataframe_result</a></code></li>
+<li><code><a title="NSEDownload.scraper.get_adjusted_headers" href="#NSEDownload.scraper.get_adjusted_headers">get_adjusted_headers</a></code></li>
+<li><code><a title="NSEDownload.scraper.get_headers" href="#NSEDownload.scraper.get_headers">get_headers</a></code></li>
 <li><code><a title="NSEDownload.scraper.scrape_data" href="#NSEDownload.scraper.scrape_data">scrape_data</a></code></li>
-<li><code><a title="NSEDownload.scraper.scrape_symbol" href="#NSEDownload.scraper.scrape_symbol">scrape_symbol</a></code></li>
 </ul>
 </li>
 </ul>
