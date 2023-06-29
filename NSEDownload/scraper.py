@@ -1,21 +1,48 @@
-import json
 from concurrent.futures import ALL_COMPLETED
 
-from bs4 import BeautifulSoup
+import json
 import datetime
 import requests
-import re
 import math
 import pandas as pd
-from NSEDownload.static_data import get_adjusted_headers, get_company_events_url
 import urllib.parse
 import concurrent.futures
 import logging
 
 HISTORICAL_DATA_URL = 'https://www.nseindia.com/api/historical/cm/equity?series=[%22EQ%22]&'
 BASE_URL = 'https://www.nseindia.com/'
+CORPORATE_EVENTS_URL = 'https://www.nseindia.com/api/corporate-announcements?'
 
 logging.basicConfig(level=logging.INFO, format='%(asctime)s %(levelname)s:%(message)s')
+
+
+def get_headers():
+    return {
+        "Host": "www1.nseindia.com",
+        "User-Agent": "Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:84.0) Gecko/20100101 Firefox/84.0",
+        "Accept": "*/*",
+        "Accept-Language": "en-US,en;q=0.5",
+        "Accept-Encoding": "gzip, deflate, br",
+        "X-Requested-With": "XMLHttpRequest",
+        "Referer": "https://www1.nseindia.com/products/content/equities/equities/eq_security.htm",
+        "Access-Control-Allow-Origin": "*",
+        "Access-Control-Allow-Methods": "GET,POST,PUT,DELETE,OPTIONS",
+        "Access-Control-Allow-Headers": "Content-Type, Access-Control-Allow-Headers, Authorization, X-Requested-With",
+        'Content-Type': 'application/start_date-www-form-urlencoded; charset=UTF-8'
+    }
+
+
+def get_adjusted_headers():
+    return {
+        'Host': 'www.nseindia.com',
+        'User-Agent': 'Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:85.0) Gecko/20100101 Firefox/85.0',
+        'Accept': '*/*',
+        'Accept-Language': 'en-US,en;q=0.5',
+        'Accept-Encoding': 'gzip, deflate, br',
+        'X-Requested-With': 'XMLHttpRequest',
+        'DNT': '1',
+        'Connection': 'keep-alive',
+    }
 
 
 def fetch_cookies():
@@ -101,60 +128,3 @@ def format_dataframe_result(result):
     result.set_index('Date', inplace=True)
     result.sort_index(inplace=True)
     return result
-
-
-def scrape_bonus_splits(stock_symbol, event_type):
-    """Scrapes for bonuses and splits
-
-    Args:
-        stock_symbol (str): Stock Symbol
-        event_type (str): Type of Event
-
-    Returns:
-        list: Returns list of dates of event and ratio of original and new price
-    """
-    dates, ratio = [], []
-
-    if not (event_type == "SPLIT" or event_type == "BONUS"):
-        print("Event input_type not understood")
-        return [ratio, dates]
-
-    url = get_company_events_url() + stock_symbol + \
-          "&Industry=&ExDt=More%20than%2024%20Months&exDt=More%20than%2024%20Months" \
-          "&recordDt=&bcstartDt=&industry=&CAType=" + event_type
-    response = requests.get(url, timeout=60, headers=get_adjusted_headers())
-
-    page_content = BeautifulSoup(response.content, "html.parser")
-    page_content = page_content.text.replace('\n', '').replace('\t', '')
-
-    date_start = page_content.find('exDt:"')
-    date_end = page_content.find(',', date_start)
-
-    while date_start != -1:
-
-        sub_start = page_content.find('Spl')
-        if sub_start == -1:
-            sub_start = page_content.find("sub")
-
-        if event_type == "BONUS":
-            sub_start = page_content.find('Bonus')
-
-        sub_end = page_content.find(',', sub_start)
-
-        num = re.findall("\d+", page_content[sub_start:sub_end])
-
-        if len(num) < 2:
-            print("Unable to parse given message" + page_content)
-        else:
-            if event_type == "BONUS":
-                ratio.append((int(num[0]) + int(num[1])) / int(num[1]))
-            else:
-                ratio.append(int(num[0]) / int(num[1]))
-
-        dates.append(page_content[date_start + 6:date_end - 1])
-        page_content = page_content[date_end:-1]
-
-        date_start = page_content.find('exDt:"')
-        date_end = page_content.find(',', date_start)
-
-    return [ratio, dates]

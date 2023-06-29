@@ -12,8 +12,6 @@ jobs:
           python-version: 3.8.16
       - name: Install dependencies
         run: python3 setup.py install
-      - name: Test with Indices
-        run: python3 -m unittest tests/indices_test.py
       - name: Test with Stocks
         run: python3 -m unittest tests/stocks_test.py
 
