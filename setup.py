@@ -4,7 +4,7 @@ setuptools.setup(
     name="NSEDownload",
     version="5.0.0",
     author="Jinit",
-    description="Download Stocks and Indices Data from NSE",
+    description="Download Stocks data from NSE",
 
     packages=setuptools.find_packages(),
     classifiers=[
