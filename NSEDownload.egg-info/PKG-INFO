@@ -1,13 +1,14 @@
-Metadata-Version: 1.1
+Metadata-Version: 2.1
 Name: NSEDownload
-Version: 3.0.0
+Version: 4.1.20
 Summary: Download Stocks and Indices Data from NSE
 Home-page: UNKNOWN
-Author: Jinit S
-Author-email: UNKNOWN
+Author: Jinit
 License: UNKNOWN
-Description: UNKNOWN
 Platform: UNKNOWN
 Classifier: Programming Language :: Python :: 2.7
 Classifier: License :: OSI Approved :: MIT License
 Classifier: Operating System :: OS Independent
+
+UNKNOWN
+

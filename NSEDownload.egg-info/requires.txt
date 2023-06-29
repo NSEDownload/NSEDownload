@@ -1,6 +1,6 @@
 beautifulsoup4
 requests
-numpy
 pandas
+numpy
 timedelta
 fuzzywuzzy

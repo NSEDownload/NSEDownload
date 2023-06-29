@@ -1,0 +1,22 @@
+name: Project Tests
+on:
+  push:
+    branches:
+      - *
+  pull_request:
+    branches:
+      - *
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Set up Python 3.9
+        uses: actions/setup-python@v1
+        with:
+          python-version: 3.9
+      - name: Install dependencies
+        run: python3 setup.py install
+      - name: Test with Stocks
+        run: python3 -m unittest tests/stocks_test.py
