@@ -26,7 +26,7 @@ Sample Output as a pandas dataframe :
 <table border="1" class="dataframe">
   <thead>
     <tr style="text-align: right;">
-      <th></th>
+      <th>Date</th>
       <th>Symbol</th>
       <th>Series</th>
       <th>High Prices</th>
@@ -39,21 +39,6 @@ Sample Output as a pandas dataframe :
       <th>Total Traded Value</th>
       <th>52 Week High Price</th>
       <th>52 Week Low Price</th>
-    </tr>
-    <tr>
-      <th>Date</th>
-      <th></th>
-      <th></th>
-      <th></th>
-      <th></th>
-      <th></th>
-      <th></th>
-      <th></th>
-      <th></th>
-      <th></th>
-      <th></th>
-      <th></th>
-      <th></th>
     </tr>
   </thead>
   <tbody>
