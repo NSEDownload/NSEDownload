@@ -23,21 +23,117 @@ df = stocks.get_data(stock_symbol="RELIANCE", start_date='15-9-2021', end_date='
 
 Sample Output as a pandas dataframe :
 
-```
-| Date | Symbol | Series | High Price | Low Price | Open Price | Close Price | Last Price | Prev Close Price | Total
-Traded Quantity | Total Traded Value | 52 Week High Price | 52 Week Low Price |
-|--------------------------|--------|--------|------------|-----------|------------|-------------|------------|------------------|-----------------------|--------------------|--------------------|-------------------|
-| 2021-08-11T18:30:00.000Z | HDFC | EQ | 2675.25 | 2646.6 | 2656.6 | 2668.75 | 2666.0 | 2658.5 | 1702479 | 4532596291.9
-| 2896 | 1623 |
-| 2021-08-12T18:30:00.000Z | HDFC | EQ | 2715.0 | 2662.0 | 2662.0 | 2704.15 | 2702.1 | 2668.75 | 3248615 | 8774705017.55
-| 2896 | 1623 |
-| 2021-08-15T18:30:00.000Z | HDFC | EQ | 2734.45 | 2693.8 | 2696.8 | 2731.15 | 2732.7 | 2704.15 | 2465887 |
-6709996706.95 | 2896 | 1623 |
-| 2021-08-16T18:30:00.000Z | HDFC | EQ | 2750.0 | 2707.15 | 2729.95 | 2738.4 | 2745.6 | 2731.15 | 2795510 | 7620988084.3
-| 2896 | 1623 |
-| 2021-08-17T18:30:00.000Z | HDFC | EQ | 2770.3 | 2698.0 | 2750.0 | 2710.75 | 2710.0 | 2738.4 | 2501410 | 6828940469.75
-| 2896 | 1623 |
-```
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>Symbol</th>
+      <th>Series</th>
+      <th>High Prices</th>
+      <th>Low Prices</th>
+      <th>Open Prices</th>
+      <th>Close Prices</th>
+      <th>Last Prices</th>
+      <th>Prec Close Price</th>
+      <th>Total Traded Quantity</th>
+      <th>Total Traded Value</th>
+      <th>52 Week High Price</th>
+      <th>52 Week Low Price</th>
+    </tr>
+    <tr>
+      <th>Date</th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>2021-08-11T18:30:00.000Z</th>
+      <td>HDFC</td>
+      <td>EQ</td>
+      <td>2675.25</td>
+      <td>2646.6</td>
+      <td>2656.6</td>
+      <td>2668.75</td>
+      <td>2666.0</td>
+      <td>2658.5</td>
+      <td>1702479</td>
+      <td>4532596291.9</td>
+      <td>2896</td>
+      <td>1623</td>
+    </tr>
+    <tr>
+      <th>2021-08-12T18:30:00.000Z</th>
+      <td>HDFC</td>
+      <td>EQ</td>
+      <td>2715.0</td>
+      <td>2662.0</td>
+      <td>2662.0</td>
+      <td>2704.15</td>
+      <td>2702.1</td>
+      <td>2668.75</td>
+      <td>3248615</td>
+      <td>8774705017.55</td>
+      <td>2896</td>
+      <td>1623</td>
+    </tr>
+    <tr>
+      <th>2021-08-15T18:30:00.000Z</th>
+      <td>HDFC</td>
+      <td>EQ</td>
+      <td>2734.45</td>
+      <td>2693.8</td>
+      <td>2696.8</td>
+      <td>2731.15</td>
+      <td>2732.7</td>
+      <td>2704.15</td>
+      <td>2465887</td>
+      <td>6709996706.95</td>
+      <td>2896</td>
+      <td>1623</td>
+    </tr>
+    <tr>
+      <th>2021-08-16T18:30:00.000Z</th>
+      <td>HDFC</td>
+      <td>EQ</td>
+      <td>2750.0</td>
+      <td>2707.15</td>
+      <td>2729.95</td>
+      <td>2738.4</td>
+      <td>2745.6</td>
+      <td>2731.15</td>
+      <td>2795510</td>
+      <td>7620988084.3</td>
+      <td>2896</td>
+      <td>1623</td>
+    </tr>
+    <tr>
+      <th>2021-08-17T18:30:00.000Z</th>
+      <td>HDFC</td>
+      <td>EQ</td>
+      <td>2770.3</td>
+      <td>2698.0</td>
+      <td>2750.0</td>
+      <td>2710.75</td>
+      <td>2710.0</td>
+      <td>2738.4</td>
+      <td>2501410</td>
+      <td>6828940469.75</td>
+      <td>2896</td>
+      <td>1623</td>
+    </tr>
+  </tbody>
+</table>
 
 ## **Change Log** ##
 
