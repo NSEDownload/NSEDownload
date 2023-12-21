@@ -2,7 +2,7 @@
 
 [![Bump Up version](https://github.com/NSEDownload/NSEDownload/actions/workflows/Bump.yaml/badge.svg)](https://github.com/NSEDownload/NSEDownload/actions/workflows/Bump.yaml)
 
-A python Library to download publicly available data on NSE website for stocks as pandas dataframe.
+A Python Library to download publicly available data on the NSE website for stocks as pandas dataframe.
 For a detailed usage : <a href="https://nsedownload.github.io/NSEDownload/">Documentation</a>
 
 ## **Installation** ##
@@ -120,17 +120,20 @@ Sample Output as a pandas dataframe :
   </tbody>
 </table>
 
+## **Tips & Tricks** ##
+1. You might run into access issues due to requests per second exceeding the permissible threshold. Add a delay of 5-10 seconds between multiple symbols to resolve the issue. ([Discussion](https://github.com/NSEDownload/NSEDownload/issues#issuecomment-1699721241))
+
 ## **Change Log** ##
 
-1. Removed indices, returns and adjusted stocks.
-2. Made changes to use new NSE site and cookies.
+1. Removed indices, returns, and adjusted stocks.
+2. Made changes to use the new NSE site and cookies.
 
 ## **Contributing** ##
 
-If you find any bugs or issue, please raise an issue for the same. You can also contribute by suggesting new features.
+If you find any bugs or issues, please raise an issue. You can also feel free to suggest new features.
 
 ## **Buy me a coffee** ##
 
-If my work has helped you in any way, you can buy me a coffee.  
+If my work has helped you, buy me a coffee!
 <br>
 <a href="https://www.buymeacoffee.com/jinit" target="_blank"><img src="https://www.buymeacoffee.com/assets/img/custom_images/orange_img.png" alt="Buy Me A Coffee" style="height: 41px !important;width: 174px !important;box-shadow: 0px 3px 2px 0px rgba(190, 190, 190, 0.5) !important;-webkit-box-shadow: 0px 3px 2px 0px rgba(190, 190, 190, 0.5) !important;" ></a>
