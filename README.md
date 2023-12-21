@@ -130,10 +130,10 @@ Sample Output as a pandas dataframe :
 
 ## **Contributing** ##
 
-If you find any bugs or issues, please raise an issue. You can also feel free to suggest new features.
+Your feedback matters! If you come across any bugs or issues, don't hesitate to raise them. Feel free to share your ideas for exciting new features
 
 ## **Buy me a coffee** ##
 
-If my work has helped you, buy me a coffee!
+If you've found my work helpful and appreciate the effort, consider supporting me with a coffee! Your contribution goes a long way!
 <br>
 <a href="https://www.buymeacoffee.com/jinit" target="_blank"><img src="https://www.buymeacoffee.com/assets/img/custom_images/orange_img.png" alt="Buy Me A Coffee" style="height: 41px !important;width: 174px !important;box-shadow: 0px 3px 2px 0px rgba(190, 190, 190, 0.5) !important;-webkit-box-shadow: 0px 3px 2px 0px rgba(190, 190, 190, 0.5) !important;" ></a>
